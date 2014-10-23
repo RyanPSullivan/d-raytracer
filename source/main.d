@@ -27,6 +27,11 @@ private:
   bool m_Transparent;
 }
 
+struct Ray
+{
+  Vector direction;
+}
+
 struct Collision
 {
   Object object;
@@ -68,6 +73,14 @@ struct Colour
   byte alpha;
 }
 
+struct Light
+{
+  Vector position;
+  float brightness;
+}
+
+
+Vector lightPosition = Vector(0,0,0);
 
 Colour trace(Vector ray, int depth)
 {
@@ -83,6 +96,7 @@ Colour trace(Vector ray, int depth)
   Colour refractionColour;
 
   //ray collided with an object
+  //reflection
   if( collision.object.IsReflective )
     {
       auto reflectionRay = computeReflectionRay( ray, collision.location );
@@ -90,15 +104,27 @@ Colour trace(Vector ray, int depth)
       reflectionColour = trace( reflectionRay, depth + 1 );
     }
 
+  //refraction
   if( collision.object.IsTransparent )
   {
     auto refractiveRay = computeRefractiveRay();
     
     refractionColour = trace( refractiveRay, depth + 1 );
   }
+  
+  //shadow
+  Ray shadowRay;
+  shadowRay.direction = lightPosition - collisiton.location;
+  bool isShadow = false;
+  foreach(object; objects)
+    {
+      if( intersect( object, shadowRay ) )
+	{
+	  return Pixel.BLACK;
+	}
+    }
 
-
-
+  return collision.object.colour * light.brightness;
 }
 Pixel generatePixel( int x, int y )
 {
