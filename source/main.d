@@ -1,159 +1,162 @@
-   /* program prints a
-   hello world message
-   to the console.  */
 import std.stdio;
-import generators;
 
-int calculateRayDirection( int x, int y )
-{
-  return 0;
-}
-
-bool intersect(int object, int ray)
-{
-  return true;
-}
-
-struct Vector
-{
-}
-
-struct Object
-{
-  @property bool isTransparent { return m_Transparent; }
-
-private:
-
-  bool m_Transparent;
-}
+import math.vector;
+import scene.object;
+import source.colour;
+import source.pixel;
 
 struct Ray
 {
-  Vector direction;
+	this( Vector direction, Vector origin )
+	{
+		this.direction = direction;
+		this.origin = origin;
+	}
+
+	Vector direction;
+	Vector origin;
 }
 
 struct Collision
 {
-  Object object;
-  Vector location;
-  Vector normal;
+	bool occurred;
+	SceneObject object;
+	Vector location;
+	Vector normal;
 }
 
-Collision getClosestCollision(int ray)
+Ray calculateRayForPixel( int x, int y )
 {
-  auto objects = [1,2,3];
-  
-  Collision returningCollision;
-
-  auto minDistance = int.max;
-
-  foreach(object; objects)
-    {
-      auto collision = intersect( object, ray );
-      auto distance = distance( eyePosition, collision.location);
-      
-      if( distance < minDistance )
-	{
-	  returningCollision = collision;
-	  minDistance = distance;
-	}
-    }
-
-  return returningCollision;
+	return Ray();
 }
 
-struct Colour
+Collision intersect(SceneObject object, Ray ray)
 {
-  Colour( byte r, byte g, byte b, byte a ) : red(r), green(g), blue(b), alpha(a) {}
-  static const Colour BlACK = Colour( 0, 0, 0, 0 );
-
-  byte red;
-  byte green;
-  byte blue;
-  byte alpha;
+	Collision col;
+	return col;
 }
 
 struct Light
 {
-  Vector position;
-  float brightness;
+	Vector position;
+	float brightness;
 }
+auto light = Light();
+auto eyePosition = Vector(0,0,0);
+auto objects = [SceneObject(), SceneObject(), SceneObject()];
+auto lightPosition = Vector(0,0,0);
 
-
-Vector lightPosition = Vector(0,0,0);
-
-Colour trace(Vector ray, int depth)
+Collision getClosestCollision(Ray ray)
 {
-  auto collision = getClosestCollision( ray );
-  
-  //no collision occured return a black pixel for now
-  if( collision == null )
-    {
-      return Pixel.BLACK;
-    }
+	Collision returningCollision;
 
-  Colour reflectionColour;
-  Colour refractionColour;
+	auto minDistance = float.max;
 
-  //ray collided with an object
-  //reflection
-  if( collision.object.IsReflective )
-    {
-      auto reflectionRay = computeReflectionRay( ray, collision.location );
-
-      reflectionColour = trace( reflectionRay, depth + 1 );
-    }
-
-  //refraction
-  if( collision.object.IsTransparent )
-  {
-    auto refractiveRay = computeRefractiveRay();
-    
-    refractionColour = trace( refractiveRay, depth + 1 );
-  }
-  
-  //shadow
-  Ray shadowRay;
-  shadowRay.direction = lightPosition - collisiton.location;
-  bool isShadow = false;
-  foreach(object; objects)
-    {
-      if( intersect( object, shadowRay ) )
+	foreach(object; objects)
 	{
-	  return Pixel.BLACK;
+		auto collision = intersect( object, ray );
+		auto distance = Vector.distance( ray.origin, collision.location);
+		
+		if( distance < minDistance )
+		{
+			returningCollision = collision;
+			minDistance = distance;
+		}
 	}
-    }
 
-  return collision.object.colour * light.brightness;
+	return returningCollision;
 }
-Pixel generatePixel( int x, int y )
-{
-  auto ray = calculateRayDirection(x,y);
 
-  return trace( ray, 0 ); 
+
+
+
+
+
+
+Ray computeReflectionRay( Vector inDirection, Vector normal)
+{
+	return Ray();
+}
+
+Ray computeRefractiveRay()
+{
+	return Ray();
+}
+
+Colour trace(Ray ray, int depth)
+{
+	auto collision = getClosestCollision( ray );
+
+	//no collision occured return a black pixel for now
+	if( collision.occurred == false )
+	{
+		return Colour.BLACK;
+	}
+
+	Colour reflectionColour;
+	Colour refractionColour;
+
+	//ray collided with an object
+	//reflection
+	if( collision.object.isReflective )
+	{
+		auto reflectionRay = computeReflectionRay( ray.direction, collision.normal );
+
+		reflectionColour = trace( reflectionRay, depth + 1 );
+	}
+
+	//refraction
+	if( collision.object.isTransparent )
+	{
+		auto refractiveRay = computeRefractiveRay();
+		
+		refractionColour = trace( refractiveRay, depth + 1 );
+	}
+	
+	//shadow
+	Ray shadowRay;
+	shadowRay.direction = lightPosition - collision.location;
+	bool isShadow = false;
+	foreach(object; objects)
+	{
+		auto shadowCollision = intersect( object, shadowRay );
+		if(  shadowCollision.occurred )
+		{
+			return Colour.BLACK;
+		}
+	}
+
+	return collision.object.colour * light.brightness;
+}
+
+Colour generatePixel( int x, int y )
+{
+	auto ray = calculateRayForPixel(x,y);
+
+	return trace( ray, 0 ); 
 }
 
 void generateBitmap( string path, int imageWidth, int imageHeight )
 {
-  //write header
+	//write header
 
-  //write bitmap data
-  foreach(x; 0..imageWidth)
-    {
-      foreach(y; 0..imageHeight)
+	//write bitmap data
+	foreach(x; 0..imageWidth)
 	{
-	  auto pixel = generatePixel( x, y );
+		foreach(y; 0..imageHeight)
+		{
+			auto pixel = generatePixel( x, y );
+		}
 	}
-    }
 
-  //write footer
+	//write footer
 }
 
 void main()
 {
-  auto imageWidth = 100;
-  auto imageHeight = 100;
+	auto imageWidth = 100;
+	auto imageHeight = 100;
 
-  generateBitmap("output.bmp", imageWidth, imageHeight);
-  writeln("Hello, World!");
+	generateBitmap("output.bmp", imageWidth, imageHeight);
+	writeln("Hello, World!");
 }

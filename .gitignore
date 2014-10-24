@@ -1,1 +1,5 @@
 bin/
+Xamarin/
+obj/
+*.dproj
+*.sln
