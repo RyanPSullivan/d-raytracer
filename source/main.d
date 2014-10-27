@@ -1,4 +1,6 @@
 import std.stdio;
+import std.math;
+import std.conv;
 
 import math.vector;
 import scene.object;
@@ -136,20 +138,32 @@ Colour generatePixel( int x, int y )
 	return trace( ray, 0 ); 
 }
 
+
+
 void generateBitmap( string path, int imageWidth, int imageHeight )
 {
-	//write header
+	auto f = File(path, "w");
 
+	//write header
+	f.write("P6\n" ~ to!string(imageWidth) ~ " " ~ to!string(imageHeight) ~ "\n255\n");
 	//write bitmap data
 	foreach(x; 0..imageWidth)
 	{
 		foreach(y; 0..imageHeight)
 		{
 			auto pixel = generatePixel( x, y );
+
+			auto r = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.r,1/2.2) * 255 + 0.5f));
+			auto g = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.g,1/2.2) * 255 + 0.5f));
+			auto b = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.b,1/2.2) * 255 + 0.5f));
+
+			f.write( r );
+			f.write( g );
+			f.write( b );
 		}
 	}
 
-	//write footer
+	f.close();
 }
 
 void main()
@@ -157,6 +171,6 @@ void main()
 	auto imageWidth = 100;
 	auto imageHeight = 100;
 
-	generateBitmap("output.bmp", imageWidth, imageHeight);
+	generateBitmap("output.ppm", imageWidth, imageHeight);
 	writeln("Hello, World!");
 }
