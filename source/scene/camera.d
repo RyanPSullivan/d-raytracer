@@ -1,5 +1,6 @@
 ﻿module source.scene.camera;
 
+import std.math;
 
 import source.math.matrix;
 
@@ -14,18 +15,17 @@ struct Camera(T)
 	     float nearClippingPane = 0.1,
 	     float farClippingPlane = 1000 )
 	{
+
 		this.nearClippingPlane = nearClippingPane;
 		this.farClippingPlane = farClippingPlane;
 		this.fov = fov;
-		this.worldTransform = worldTransform;
-		this.inverseWorldTransform = Matrix!T.invert(worldTransform);
-		this.angle = atan(degtorad(fov * 0.5));
+		this.transform = worldTransform;
+		this.angle = atan((fov * 0.5) * 0.0174532925);
 	}
 
-	private immutable T nearClippingPlane, farClippingPlane;
-	private immutable T fov;
-	private immutable T angle;
-	private immutable Matrix!T worldTransform;
-	private immutable Matrix!T inverseWorldTransform;
+	public  T nearClippingPlane, farClippingPlane;
+	public  T fov;
+	public  T angle;
+	public  Matrix!T transform;
 }
 

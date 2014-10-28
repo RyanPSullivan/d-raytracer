@@ -18,6 +18,10 @@ public:
 		this.w = w;
 	}
 
+	this( T[4] xyzw )
+	{
+		this.elements = xyzw;
+	}
 	
 	float magnitudeSquared()
 	{
