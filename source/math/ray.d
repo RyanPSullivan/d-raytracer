@@ -1,6 +1,7 @@
-﻿module source.ray;
+﻿module source.math.ray;
 
-import math.vector;
+import source.math.vector;
+
 struct Ray(T)
 {
 	this( Vector!T origin, Vector!T direction, T near = 0, T far = T.infinity )
@@ -11,7 +12,6 @@ struct Ray(T)
 		this.min = min;
 		this.max = max;
 	}
-
 	
 	Vector!T direction;
 	Vector!T origin;

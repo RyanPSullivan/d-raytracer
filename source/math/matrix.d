@@ -1,10 +1,9 @@
-﻿module math.matrix;
+﻿module source.math.matrix;
 
-import math.vector;
+import source.math.vector;
 
-class Matrix(T)
+struct Matrix(T)
 {
-
 	Vector!T multVecMatrix( Vector!T src ) const
 	{
 		float x,y,z;
@@ -29,6 +28,8 @@ class Matrix(T)
 		src.x * m[0][1] + src.y * m[1][1] + src.z * m[2][1],
 		src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2] );
 	}
+
+	
 
 	
 	T[4][4] m;

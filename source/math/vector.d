@@ -1,7 +1,7 @@
 /* program prints a
  hello world message
  to the console.  */
-module math.vector;
+module source.math.vector;
 
 import core.simd;
 import core.math;
@@ -29,6 +29,16 @@ public:
 		return sqrt( magnitudeSquared() );
 	}
 
+	
+	void normalize()
+	{
+		auto mag = magnitude();
+
+		x = x / mag;
+		y = y / mag;
+		z = z / mag;
+	}
+
 	Vector opBinary(string op)(Vector rhs) 
 		if( op == "-")
 	{
@@ -40,17 +50,21 @@ public:
 		return Vector(-this.x,-this.y,-this.z);
 	}
 
-	
-	static float  distance( Vector lhs, Vector rhs )
+	static float  distance( Vector lhs, Vector rhs ) 
 	{
 		return (lhs - rhs).magnitude;
 	}
 
 	static Vector normalize( Vector input )
 	{
-		auto mag = input.magnitude();
+		input.normalize();
 
-		return Vector( input.x/mag, input.y/mag, input.z/mag);
+		return input;
+	}
+
+	static T dot( Vector lhs, Vector rhs )
+	{
+		return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 	}
 
 	@property float x() { return elements[0]; }
@@ -67,9 +81,5 @@ public:
 
 private:
 
-	
 	T[4] elements;
-	
-	
-	
 }

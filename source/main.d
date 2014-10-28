@@ -2,22 +2,35 @@ import std.stdio;
 import std.math;
 import std.conv;
 
-import math.vector;
-import math.matrix;
+import source.math.vector;
+import source.math.matrix;
 
-import scene.object;
+import source.scene.model.model;
+import source.scene.model.box3;
+import source.scene.model.sphere;
+import source.scene.camera;
+
 import source.colour;
-import source.ray;
+import source.math.ray;
 
 
 struct Collision(T)
 {
 	bool occurred;
-	SceneObject object;
+	Model!T object;
 	Vector!T location;
 	Vector!T normal;
 }
 
+Model!T[] getModels(T)()
+{
+
+	Model!T sphere = new Sphere!T(Vector!T(), 1, Matrix!T());
+	Model!T box = new Box3!T(Vector!T(), Vector!T(), Matrix!T());
+
+	return [sphere, box];
+	
+}
 Ray!T calculateRayForPixel(T)( int x, int y, int imageWidth, int imageHeight )
 {
 	immutable auto fov = 60.0f;
@@ -39,8 +52,10 @@ Ray!T calculateRayForPixel(T)( int x, int y, int imageWidth, int imageHeight )
 
 }
 
-Collision!T intersect(T)(SceneObject object, Ray!T ray)
+Collision!T intersect(T)(Model!T model, Ray!T ray)
 {
+
+	model.intersect(ray);
 	Collision!T col;
 	return col;
 }
@@ -52,7 +67,6 @@ struct Light(T)
 }
 auto light = Light!float();
 auto eyePosition = Vector!float(0,0,0);
-auto objects = [SceneObject(), SceneObject(), SceneObject()];
 auto lightPosition = Vector!float(0,0,0);
 
 Collision!T getClosestCollision(T)(Ray!T ray)
@@ -61,7 +75,7 @@ Collision!T getClosestCollision(T)(Ray!T ray)
 
 	auto minDistance = float.max;
 
-	foreach(object; objects)
+	foreach(object; getModels!T())
 	{
 		auto collision = intersect( object, ray );
 		auto distance = Vector!T.distance( ray.origin, collision.location);
@@ -120,8 +134,9 @@ Colour trace(T)(Ray!T ray, int depth)
 	Ray!T shadowRay;
 	shadowRay.direction = lightPosition - collision.location;
 	bool isShadow = false;
-	foreach(object; objects)
+	foreach(object; getModels!T())
 	{
+		
 		auto shadowCollision = intersect( object, shadowRay );
 		if(  shadowCollision.occurred )
 		{
@@ -138,8 +153,6 @@ Colour generatePixel( int x, int y, int imageWidth, int imageHeight )
 
 	return trace( ray, 0 ); 
 }
-
-
 
 void generateBitmap( string path, int imageWidth, int imageHeight )
 {
@@ -169,9 +182,9 @@ void generateBitmap( string path, int imageWidth, int imageHeight )
 
 void main()
 {
+	auto camera = Camera!float();
 	immutable auto imageWidth = 100;
 	immutable auto imageHeight = 100;
 
 	generateBitmap("output.ppm", imageWidth, imageHeight);
-
 }
