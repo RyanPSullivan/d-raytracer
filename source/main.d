@@ -3,61 +3,68 @@ import std.math;
 import std.conv;
 
 import math.vector;
+import math.matrix;
+
 import scene.object;
 import source.colour;
-import source.pixel;
+import source.ray;
 
-struct Ray
-{
-	this( Vector direction, Vector origin )
-	{
-		this.direction = direction;
-		this.origin = origin;
-	}
 
-	Vector direction;
-	Vector origin;
-}
-
-struct Collision
+struct Collision(T)
 {
 	bool occurred;
 	SceneObject object;
-	Vector location;
-	Vector normal;
+	Vector!T location;
+	Vector!T normal;
 }
 
-Ray calculateRayForPixel( int x, int y )
+Ray!T calculateRayForPixel(T)( int x, int y, int imageWidth, int imageHeight )
 {
-	return Ray();
+	immutable auto fov = 60.0f;
+	immutable auto tanFov = tan(fov * 0.5 * PI / 180);
+	immutable auto aspectRatio = cast(float)imageWidth / imageHeight;
+
+	Matrix!float camToWorld;
+	
+	auto rayOrigin = camToWorld.multVecMatrix(Vector!float());
+	// remap from raster to screen space
+	float xx = (2 * (x + 0.5) / x - 1) * tanFov * aspectRatio;
+	float yy = (1 - 2 * (y + 0.5) / y) * tanFov;
+
+	// create the ray direction, looking down the z-axis
+	// and transform by the camera-to-world matrix
+	auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, -1));
+	
+	return Ray!float(rayOrigin, Vector!float.normalize(rayDirection));
+
 }
 
-Collision intersect(SceneObject object, Ray ray)
+Collision!T intersect(T)(SceneObject object, Ray!T ray)
 {
-	Collision col;
+	Collision!T col;
 	return col;
 }
 
-struct Light
+struct Light(T)
 {
-	Vector position;
+	Vector!T position;
 	float brightness;
 }
-auto light = Light();
-auto eyePosition = Vector(0,0,0);
+auto light = Light!float();
+auto eyePosition = Vector!float(0,0,0);
 auto objects = [SceneObject(), SceneObject(), SceneObject()];
-auto lightPosition = Vector(0,0,0);
+auto lightPosition = Vector!float(0,0,0);
 
-Collision getClosestCollision(Ray ray)
+Collision!T getClosestCollision(T)(Ray!T ray)
 {
-	Collision returningCollision;
+	Collision!T returningCollision;
 
 	auto minDistance = float.max;
 
 	foreach(object; objects)
 	{
 		auto collision = intersect( object, ray );
-		auto distance = Vector.distance( ray.origin, collision.location);
+		auto distance = Vector!T.distance( ray.origin, collision.location);
 		
 		if( distance < minDistance )
 		{
@@ -69,23 +76,17 @@ Collision getClosestCollision(Ray ray)
 	return returningCollision;
 }
 
-
-
-
-
-
-
-Ray computeReflectionRay( Vector inDirection, Vector normal)
+Ray!T computeReflectionRay(T)( Vector!T inDirection, Vector!T normal)
 {
-	return Ray();
+	return Ray!T();
 }
 
-Ray computeRefractiveRay()
+Ray!T computeRefractiveRay(T)()
 {
-	return Ray();
+	return Ray!T();
 }
 
-Colour trace(Ray ray, int depth)
+Colour trace(T)(Ray!T ray, int depth)
 {
 	auto collision = getClosestCollision( ray );
 
@@ -110,13 +111,13 @@ Colour trace(Ray ray, int depth)
 	//refraction
 	if( collision.object.isTransparent )
 	{
-		auto refractiveRay = computeRefractiveRay();
+		auto refractiveRay = computeRefractiveRay!float();
 		
 		refractionColour = trace( refractiveRay, depth + 1 );
 	}
 	
 	//shadow
-	Ray shadowRay;
+	Ray!T shadowRay;
 	shadowRay.direction = lightPosition - collision.location;
 	bool isShadow = false;
 	foreach(object; objects)
@@ -131,9 +132,9 @@ Colour trace(Ray ray, int depth)
 	return collision.object.colour * light.brightness;
 }
 
-Colour generatePixel( int x, int y )
+Colour generatePixel( int x, int y, int imageWidth, int imageHeight )
 {
-	auto ray = calculateRayForPixel(x,y);
+	auto ray = calculateRayForPixel!float(x,y, imageWidth, imageHeight );
 
 	return trace( ray, 0 ); 
 }
@@ -147,11 +148,11 @@ void generateBitmap( string path, int imageWidth, int imageHeight )
 	//write header
 	f.write("P6\n" ~ to!string(imageWidth) ~ " " ~ to!string(imageHeight) ~ "\n255\n");
 	//write bitmap data
-	foreach(x; 0..imageWidth)
+	foreach(y; 0..imageHeight)
 	{
-		foreach(y; 0..imageHeight)
+		foreach(x; 0..imageWidth)
 		{
-			auto pixel = generatePixel( x, y );
+			auto pixel = generatePixel( x, y, imageWidth, imageHeight );
 
 			auto r = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.r,1/2.2) * 255 + 0.5f));
 			auto g = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.g,1/2.2) * 255 + 0.5f));
@@ -168,9 +169,9 @@ void generateBitmap( string path, int imageWidth, int imageHeight )
 
 void main()
 {
-	auto imageWidth = 100;
-	auto imageHeight = 100;
+	immutable auto imageWidth = 100;
+	immutable auto imageHeight = 100;
 
 	generateBitmap("output.ppm", imageWidth, imageHeight);
-	writeln("Hello, World!");
+
 }
