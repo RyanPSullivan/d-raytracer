@@ -5,6 +5,9 @@ import source.scene.model.model;
 import source.math.vector;
 import source.colour;
 
+import std.conv;
+import std.stdio;
+
 struct RenderContext
 {
 	this(int imageWidth = 640, int imageHeight = 480)

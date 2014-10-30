@@ -10,7 +10,7 @@ struct Vector(T)
 {
 
 public:
-	this( T x, T y, T z, T w = 0)
+	this( T x = 0, T y = 0, T z = 0, T w = 0)
 	{
 		this.x = x;
 		this.y = y;

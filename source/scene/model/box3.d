@@ -14,7 +14,7 @@ class Box3(T) : Model!T
 		this.max = max;
 	}
 
-	protected override bool intersects( ref Ray!T r )
+	protected override bool intersects( ref Ray!T r, ref T t )
 	{
 		auto tmin = (min.x - r.origin.x) / r.direction.x;
 		auto tmax = (max.x - r.origin.x) / r.direction.x;

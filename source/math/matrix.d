@@ -4,7 +4,6 @@ import source.math.vector;
 
 struct Matrix(T)
 {
-
 	this(T m11, T m12, T m13, T m14,
 	     T m21, T m22, T m23, T m24,
 	     T m31, T m32, T m33, T m34,
@@ -16,21 +15,21 @@ struct Matrix(T)
 		m[3][0] = m41; m[3][1] = m42; m[3][2] = m43; m[3][3] = m44;
 	}
 
-	Vector!T multVecMatrix( Vector!T src ) const
+	Vector!T multVecMatrix( Vector!T src) 
 	{
-		float x,y,z;
-
-		x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0] + m[3][0];
-		y = src.x * m[0][1] + src.y * m[1][1] + src.z * m[2][1] + m[3][1];
-		z = src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2] + m[3][2];
+		T x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0] + m[3][0];
+		T y = src.x * m[0][1] + src.y * m[1][1] + src.z * m[2][1] + m[3][1];
+		T z = src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2] + m[3][2];
 		T w = src.x * m[0][3] + src.y * m[1][3] + src.z * m[2][3] + m[3][3];
-		if (w != 1 && w != 0) {
-			x /= w;
-			y /= w;
-			z /= w;
-		}
 
-		return Vector!T(x,y,z);
+		if( w == 0 )
+		{
+			return Vector!T(x,y,x,w);
+		}
+		else
+		{
+			return Vector!T( x/w, y/w, z/w, 0 );
+		}
 	}
 
 	Vector!T multDirMatrix(Vector!T src) const
@@ -41,11 +40,6 @@ struct Matrix(T)
 		src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2] );
 	}
 
-	public static Matrix invert( Matrix mat )
-	{
-		return identity();
-	}
-	
 	public static Matrix identity()
 	{
 		return Matrix(1, 0, 0, 0,
@@ -55,12 +49,13 @@ struct Matrix(T)
 	}
 
 	@property Vector!T translation() { return Vector!float(m[3]); }
+
 	@property void translation( Vector!T value ) 
 	{ 
 		m[3][0] = value.x; m[3][1] = value.y; m[3][2] = value.z; m[3][3] = value.w;
 
 	}
-	
+
 	private T[4][4] m;
 }
 

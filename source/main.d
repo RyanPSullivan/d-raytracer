@@ -21,138 +21,70 @@ struct Collision(T)
 {
 	bool occurred;
 	Model!T object;
-	Vector!T location;
-	Vector!T normal;
 }
 
-Model!T[] getModels(T)()
-{
-	
-	Model!T sphere = new Sphere!T(Vector!T(), 1, Matrix!T());
-	Model!T box = new Box3!T(Vector!T(), Vector!T(), Matrix!T());
-	
-	return [sphere, box];
-	
-}
 Ray!T calculateRayForPixel(T)( int x, int y, RenderContext renderContext)
 {
-	
-	
 	Matrix!float camToWorld = renderContext.camera.transform;
 	
-	auto rayOrigin = camToWorld.multVecMatrix(Vector!float());
+	auto rayOrigin = camToWorld.multVecMatrix(Vector!float(0,0,0));
+
 	// remap from raster to screen space
-	float xx = (2 * (x + 0.5) / x - 1) * renderContext.camera.angle * renderContext.imageAspectRatio;
-	float yy = (1 - 2 * (y + 0.5) / y) * renderContext.camera.angle;
+	float xx = (2 * ((x + 0.5) / renderContext.imageWidth) - 1)  * renderContext.camera.angle * renderContext.imageAspectRatio;
+	float yy = (1 - 2 *((y + 0.5) / renderContext.imageHeight))  * renderContext.camera.angle;
 	
 	// create the ray direction, looking down the z-axis
 	// and transform by the camera-to-world matrix
 	auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, -1));
 	
-	return Ray!float(rayOrigin, Vector!float.normalize(rayDirection));
+	return Ray!float( rayOrigin, 
+	                 Vector!float.normalize(rayDirection), 
+	                 renderContext.camera.nearClippingPlane, 
+	                 renderContext.camera.farClippingPlane);
 	
 }
 
-Collision!T intersect(T)(Model!T model, Ray!T ray)
-{
-	
-	model.intersect(ray);
-	Collision!T col;
-	return col;
-}
-
-struct Light(T)
-{
-	Vector!T position;
-	float brightness;
-}
-auto light = Light!float();
-auto eyePosition = Vector!float(0,0,0);
-auto lightPosition = Vector!float(0,0,0);
-
-Collision!T getClosestCollision(T)(Ray!T ray)
-{
-	Collision!T returningCollision;
-	
-	auto minDistance = float.max;
-	
-	foreach(object; getModels!T())
+Model!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
+	auto minDistance = T.max;
+	Model!T collidingModel = null;
+	foreach(model; models)
 	{
-		auto collision = intersect( object, ray );
-		auto distance = Vector!T.distance( ray.origin, collision.location);
-		
-		if( distance < minDistance )
+		auto distance = 0.0f;
+		if( model.intersects( ray, distance ) )
 		{
-			returningCollision = collision;
-			minDistance = distance;
+			if( distance < minDistance && distance > ray.min  )
+			{
+				collidingModel = model;
+				minDistance = distance;
+			}
 		}
 	}
 	
-	return returningCollision;
+	return minDistance < ray.max ? collidingModel : null;
 }
 
-Ray!T computeReflectionRay(T)( Vector!T inDirection, Vector!T normal)
+Colour trace(T)(Ray!T ray, int depth, RenderContext renderContext)
 {
-	return Ray!T();
-}
-
-Ray!T computeRefractiveRay(T)()
-{
-	return Ray!T();
-}
-
-Colour trace(T)(Ray!T ray, int depth)
-{
-	auto collision = getClosestCollision( ray );
+	auto model = getClosestCollidingModel( ray, renderContext.models );
 	
 	//no collision occured return a black pixel for now
-	if( collision.occurred == false )
+	if( model is null )
 	{
-		return Colour.BLACK;
+		return renderContext.backgroundColor;
 	}
-	
-	Colour reflectionColour;
-	Colour refractionColour;
-	
-	//ray collided with an object
-	//reflection
-	if( collision.object.isReflective )
+	else
 	{
-		auto reflectionRay = computeReflectionRay( ray.direction, collision.normal );
-		
-		reflectionColour = trace( reflectionRay, depth + 1 );
+		return model.colour;
 	}
-	
-	//refraction
-	if( collision.object.isTransparent )
-	{
-		auto refractiveRay = computeRefractiveRay!float();
-		
-		refractionColour = trace( refractiveRay, depth + 1 );
-	}
-	
-	//shadow
-	Ray!T shadowRay;
-	shadowRay.direction = lightPosition - collision.location;
-	bool isShadow = false;
-	foreach(object; getModels!T())
-	{
-		
-		auto shadowCollision = intersect( object, shadowRay );
-		if(  shadowCollision.occurred )
-		{
-			return Colour.BLACK;
-		}
-	}
-	
-	return collision.object.colour * light.brightness;
 }
 
 Colour generatePixel( int x, int y, RenderContext renderContext )
 {
 	auto ray = calculateRayForPixel!float(x,y, renderContext );
+
 	
-	return trace( ray, 0 ); 
+
+	return trace!float( ray, 0, renderContext ); 
 }
 
 void generateBitmap( string path, RenderContext renderContext )
@@ -169,11 +101,10 @@ void generateBitmap( string path, RenderContext renderContext )
 		foreach(x; 0..imageWidth)
 		{
 			auto pixel = generatePixel( x, y, renderContext);
-			
-			
-			auto r = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.r,1/2.2) * 255 + 0.5f));
-			auto g = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.g,1/2.2) * 255 + 0.5f));
-			auto b = cast(char)fmax( 0.0f, fmin(255.0f, pow(pixel.b,1/2.2) * 255 + 0.5f));
+
+			auto r = cast(char)(fmin(pixel.r * 255 + 0.5f, 255));
+			auto g = cast(char)(fmin(pixel.g * 255  + 0.5f, 255));
+			auto b = cast(char)(fmin(pixel.b * 255 + 0.5f, 255));
 			
 			f.write( r );
 			f.write( g );
@@ -186,21 +117,21 @@ void generateBitmap( string path, RenderContext renderContext )
 
 void main()
 {
-	auto renderContext = RenderContext();
+	auto renderContext = RenderContext(640,480);
 
 	auto identity = Matrix!float.identity;
+	foreach(i; 1 .. 15)
+	{
+		identity.translation = Vector!float(1,1,-(i * 2),1);
+		
+		renderContext.models ~= new Sphere!float(identity);
+	}
 
-	identity.translation = Vector!float(0,0,-5);
-
-	renderContext.models[] = new Sphere!float(Vector!float(), 1, identity);
-
-	identity.translation = Vector!float(1,1,6);
-
-	renderContext.models[] = new Sphere!float(Vector!float(),1, identity);
-
+	writeln(identity);
+	renderContext.models ~= new Sphere!float(identity);
 	
 	auto cameraTransform = Matrix!float.identity;
-	cameraTransform.translation = Vector!float(0,0,5);
+	cameraTransform.translation = Vector!float(0,0,10,1);	
 
 	renderContext.camera = Camera!float(cameraTransform,30);
 
