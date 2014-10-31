@@ -18,7 +18,7 @@ struct Colour
 	}
 
 	static immutable Colour BLACK = Colour( 0, 0, 0, 0 );
-	static immutable Colour RED = Colour( 1.0f, 0.5, 0, 0 );
+	static immutable Colour RED = Colour( 1.0f, 0, 0, 0 );
 	
 	Colour opBinary(string op)(float scalar) if( op == "*")
 	{

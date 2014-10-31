@@ -60,11 +60,11 @@ class Sphere(T) : Model!T
 
 		auto rdir = transformation.multDirMatrix(ray.direction);
 
-		float a = Vector!T.dot(rdir, rdir);
-		float b = 2 * Vector!T.dot(rdir, rorig);
-		float c = Vector!T.dot(rorig, rorig) - radiusSquared;
-		float t0 = 0;
-		float t1 = 0;
+		T a = Vector!T.dot(rdir, rdir);
+		T b = 2 * Vector!T.dot(rdir, rorig);
+		T c = Vector!T.dot(rorig, rorig) - radiusSquared;
+		T t0 = 0;
+		T t1 = 0;
 		if (!solveQuadratic(a, b, c, t0, t1) || t1 < 0) return false;
 
 		if (t1 < t0) swap(t0, t1);

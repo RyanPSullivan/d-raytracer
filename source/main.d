@@ -19,11 +19,11 @@ import source.math.ray;
 
 struct Collision(T)
 {
-	bool occurred;
-	Model!T object;
+	Model!T model;
+	Vector!T hit;
 }
 
-Ray!T calculateRayForPixel(T)( int x, int y, RenderContext renderContext)
+Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
 {
 	Matrix!float camToWorld = renderContext.camera.transform;
 	
@@ -44,12 +44,12 @@ Ray!T calculateRayForPixel(T)( int x, int y, RenderContext renderContext)
 	
 }
 
-Model!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
+Collision!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
 	auto minDistance = T.max;
 	Model!T collidingModel = null;
 	foreach(model; models)
 	{
-		auto distance = 0.0f;
+		T distance = 0;
 		if( model.intersects( ray, distance ) )
 		{
 			if( distance < minDistance && distance > ray.min  )
@@ -59,35 +59,55 @@ Model!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
 			}
 		}
 	}
+
+	auto collision = Collision!T();
 	
-	return minDistance < ray.max ? collidingModel : null;
+	collision.model = minDistance < ray.max ? collidingModel : null;
+	collision.hit = ray.origin + (ray.direction * minDistance);
+
+	return collision;
 }
 
-Colour trace(T)(Ray!T ray, int depth, RenderContext renderContext)
+Vector!float lightPosition = Vector!float(4, 0 -4, 1);
+
+Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 {
-	auto model = getClosestCollidingModel( ray, renderContext.models );
+	auto collision = getClosestCollidingModel!T( ray, renderContext.models );
+
 	
-	//no collision occured return a black pixel for now
-	if( model is null )
+	//no collision occured return a black pixel for now                                                                                                                                                                      
+	if( collision.model is null )
 	{
 		return renderContext.backgroundColor;
 	}
 	else
 	{
-		return model.colour;
+		auto direction = Vector!float.normalize(lightPosition - collision.hit);
+		//lets do some shading
+		auto shadowRay = Ray!T( collision.hit, 
+		                       direction );
+
+		auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
+
+		if( shadowCollision.model is null)
+		{
+			return collision.model.colour;
+		}
+		else
+		{
+			return Colour.RED;
+		}
 	}
 }
 
-Colour generatePixel( int x, int y, RenderContext renderContext )
+Colour generatePixel(T)( int x, int y, RenderContext!T renderContext )
 {
 	auto ray = calculateRayForPixel!float(x,y, renderContext );
-
-	
 
 	return trace!float( ray, 0, renderContext ); 
 }
 
-void generateBitmap( string path, RenderContext renderContext )
+void generateBitmap(T)( string path, RenderContext!T renderContext )
 {
 	auto f = File(path, "w");
 	auto imageWidth = renderContext.imageWidth;
@@ -100,7 +120,7 @@ void generateBitmap( string path, RenderContext renderContext )
 	{
 		foreach(x; 0..imageWidth)
 		{
-			auto pixel = generatePixel( x, y, renderContext);
+			auto pixel = generatePixel( imageWidth - x, imageHeight - y, renderContext);
 
 			auto r = cast(char)(fmin(pixel.r * 255 + 0.5f, 255));
 			auto g = cast(char)(fmin(pixel.g * 255  + 0.5f, 255));
@@ -117,25 +137,33 @@ void generateBitmap( string path, RenderContext renderContext )
 
 void main()
 {
-	auto renderContext = RenderContext(640,480);
+	auto renderContext = RenderContext!float(1920,1080);
 
 	auto identity = Matrix!float.identity;
-	foreach(i; 1 .. 15)
-	{
-		identity.translation = Vector!float(1,1,-(i * 2),1);
-		
-		renderContext.models ~= new Sphere!float(identity);
-	}
 
-	writeln(identity);
+	identity.translation = Vector!float(0,0,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+
+	identity.translation = Vector!float(-1,-2,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+
+	identity.translation = Vector!float(-2,-4,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+
+	
 	renderContext.models ~= new Sphere!float(identity);
 	
 	auto cameraTransform = Matrix!float.identity;
-	cameraTransform.translation = Vector!float(0,0,10,1);	
+	cameraTransform.translation = Vector!float(0,0,20,1);	
 
 	renderContext.camera = Camera!float(cameraTransform,30);
 
 	generateBitmap("output.ppm", renderContext);
+
+	writeln("done");
 }
 
 

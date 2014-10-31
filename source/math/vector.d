@@ -10,7 +10,7 @@ struct Vector(T)
 {
 
 public:
-	this( T x = 0, T y = 0, T z = 0, T w = 0)
+	this( T x = 0, T y = 0, T z = 0, T w = 1)
 	{
 		this.x = x;
 		this.y = y;
@@ -46,7 +46,20 @@ public:
 	Vector opBinary(string op)(Vector rhs) 
 		if( op == "-")
 	{
-		return Vector!T(this.x - rhs.x, this.y - rhs.y, this.z - rhs.z, this.w - rhs.w);
+		return Vector!T(this.x - rhs.x, this.y - rhs.y, this.z - rhs.z);
+	}
+
+	Vector opBinary(string op)(Vector rhs) 
+		if( op == "+")
+	{
+		return Vector!T(this.x + rhs.x, this.y + rhs.y, this.z + rhs.z);
+	}
+
+	
+	Vector opBinary( string op, U )( U scalar )
+		if( op == "*")
+	{
+		return Vector!T(this.x * scalar, this.y * scalar, this.z * scalar);
 	}
 
 	Vector opUnary(string op)() if( op == "-" )
@@ -71,17 +84,17 @@ public:
 		return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 	}
 
-	@property float x() { return elements[0]; }
-	@property float x( float value ) { return elements[0] = value; }
+	@property T x() { return elements[0]; }
+	@property T x( T value ) { return elements[0] = value; }
 
-	@property float y() { return elements[1]; }
-	@property float y( float value ) { return elements[1] = value; }
+	@property T y() { return elements[1]; }
+	@property T y( T value ) { return elements[1] = value; }
 
-	@property float z() { return elements[2]; }
-	@property float z( float value ) { return elements[2] = value; }
+	@property T z() { return elements[2]; }
+	@property T z( T value ) { return elements[2] = value; }
 
-	@property float w() { return elements[3]; }
-	@property float w( float value ) { return elements[3] = value; }
+	@property T w() { return elements[3]; }
+	@property T w( T value ) { return elements[3] = value; }
 
 private:
 

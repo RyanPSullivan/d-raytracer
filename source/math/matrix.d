@@ -48,7 +48,7 @@ struct Matrix(T)
 		              0, 0, 0, 1 );
 	}
 
-	@property Vector!T translation() { return Vector!float(m[3]); }
+	@property Vector!T translation() { return Vector!T(m[3]); }
 
 	@property void translation( Vector!T value ) 
 	{ 

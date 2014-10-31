@@ -8,7 +8,7 @@ import source.colour;
 import std.conv;
 import std.stdio;
 
-struct RenderContext
+struct RenderContext(T)
 {
 	this(int imageWidth = 640, int imageHeight = 480)
 	{
@@ -18,12 +18,12 @@ struct RenderContext
 		this.backgroundColor = Colour(0.2, 0.3, 0.5, 0);
 	}
 
-	public Camera!float camera;
+	public Camera!T camera;
 	uint imageWidth;
 	uint imageHeight;
 	float imageAspectRatio;
-	Vector!float[] image;
-	Model!float[] models;
+	Vector!T[] image;
+	Model!T[] models;
 	Colour backgroundColor;
 }
 
