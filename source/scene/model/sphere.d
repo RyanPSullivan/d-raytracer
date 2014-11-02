@@ -54,7 +54,7 @@ class Sphere(T) : Model!T
 	}
 
 	// Constructor code
-	override bool intersects(ref Ray!T ray, ref T t) 
+	override bool intersects(Ray!T ray, ref T t) 
 	{
 		auto rorig = transformation.multVecMatrix(ray.origin);
 
@@ -67,7 +67,8 @@ class Sphere(T) : Model!T
 		T t1 = 0;
 		if (!solveQuadratic(a, b, c, t0, t1) || t1 < 0) return false;
 
-		if (t1 < t0) swap(t0, t1);
+		if (t1 < t0) 
+			swap(t0, t1);
 
 		
 		t = (t0 < 0) ? t1 : t0; 

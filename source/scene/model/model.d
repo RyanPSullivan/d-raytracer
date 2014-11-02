@@ -14,7 +14,7 @@ class Model(T)
 		this.shade = Colour(uniform(0.0f, 1.0f), uniform(0.0f, 1.0f), uniform(0.0f, 1.0f), 0);
 	}
 
-	abstract bool intersects( ref Ray!T ray, ref T t );
+	abstract bool intersects( Ray!T ray, ref T t );
 
 	@property bool isTransparent() { return transparent; }
 	@property bool isReflective() { return reflective; }

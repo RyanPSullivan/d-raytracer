@@ -63,7 +63,7 @@ Collision!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
 	auto collision = Collision!T();
 	
 	collision.model = minDistance < ray.max ? collidingModel : null;
-	collision.hit = ray.origin + (ray.direction * minDistance);
+	collision.hit = ray.origin + (ray.direction * (minDistance - 0.01)); //TODO:this magic number needs removing.
 
 	return collision;
 }
@@ -83,9 +83,9 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 	else
 	{
 		auto direction = Vector!float.normalize(lightPosition - collision.hit);
+
 		//lets do some shading
-		auto shadowRay = Ray!T( collision.hit, 
-		                       direction );
+		auto shadowRay = Ray!T( collision.hit, direction);
 
 		auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
 
@@ -95,7 +95,10 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 		}
 		else
 		{
-			return Colour.RED;
+			//writeln("in shadow " ~ to!string(shadowCollision.hit) ~ "  " ~ to!string(shadowRay.origin));
+			//return Colour.RED;
+
+			return collision.model.colour * 0.2;
 		}
 	}
 }
@@ -112,7 +115,10 @@ void generateBitmap(T)( string path, RenderContext!T renderContext )
 	auto f = File(path, "w");
 	auto imageWidth = renderContext.imageWidth;
 	auto imageHeight = renderContext.imageHeight;
+
 	
+	//generatePixel( 900, 438, renderContext);
+
 	//write header
 	f.write("P6\n" ~ to!string(imageWidth) ~ " " ~ to!string(imageHeight) ~ "\n255\n");
 	//write bitmap data
@@ -121,9 +127,9 @@ void generateBitmap(T)( string path, RenderContext!T renderContext )
 		foreach(x; 0..imageWidth)
 		{
 			auto pixel = generatePixel( imageWidth - x, imageHeight - y, renderContext);
-
+			
 			auto r = cast(char)(fmin(pixel.r * 255 + 0.5f, 255));
-			auto g = cast(char)(fmin(pixel.g * 255  + 0.5f, 255));
+			auto g = cast(char)(fmin(pixel.g * 255 + 0.5f, 255));
 			auto b = cast(char)(fmin(pixel.b * 255 + 0.5f, 255));
 			
 			f.write( r );
@@ -138,7 +144,7 @@ void generateBitmap(T)( string path, RenderContext!T renderContext )
 void main()
 {
 	auto renderContext = RenderContext!float(1920,1080);
-
+	//auto renderContext = RenderContext!float(4096,4096);
 	auto identity = Matrix!float.identity;
 
 	identity.translation = Vector!float(0,0,-4,1);
