@@ -20,14 +20,28 @@ struct Colour
 	static immutable Colour WHITE = Colour(1,1,1,0);
 	static immutable Colour BLACK = Colour( 0, 0, 0, 0 );
 	static immutable Colour RED = Colour( 1, 0, 0, 0 );
+
 	
-	Colour opBinary(string op)(float scalar) if( op == "*")
+	Colour opBinary( string op )( Colour rhs )
+		if( op == "*")
+	{
+		return Colour( r * rhs.r, g * rhs.g, b * rhs.b, a * rhs.a);
+	}
+
+	Colour opBinary(string op)(float scalar) 
+		if( op == "*")
 	{
 		return Colour( r * scalar, g * scalar, b * scalar, a * scalar );
 	}
+
 	Colour opBinaryRight( string op)(float scalar ) if( op == "*")
 	{
 		return this * scalar;
+	}
+
+	Colour opBinaryRight( string op)( Colour rhs ) if( op == "+")
+	{
+		return Colour( r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 	}
 
 	@property  const float r() { return elements.array[0]; }

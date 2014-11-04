@@ -53,7 +53,6 @@ struct Matrix(T)
 	@property void translation( Vector!T value ) 
 	{ 
 		m[3][0] = value.x; m[3][1] = value.y; m[3][2] = value.z; m[3][3] = value.w;
-
 	}
 
 	private T[4][4] m;

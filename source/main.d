@@ -8,6 +8,7 @@ import source.math.matrix;
 
 import source.scene.rendercontext;
 
+import source.scene.light.point;
 import source.scene.model.collision;
 import source.scene.model.model;
 import source.scene.model.box3;
@@ -16,9 +17,6 @@ import source.scene.camera;
 
 import source.colour;
 import source.math.ray;
-
-
-
 
 Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
 {
@@ -63,8 +61,6 @@ Collision!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
 	return collision;
 }
 
-Vector!float lightPosition = Vector!float(-10, 0, -4);
-float lightIntensity = 1;
 
 Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 {
@@ -81,32 +77,52 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 
 		//return Colour(abs(collision.normal.x), abs(collision.normal.y), abs(collision.normal.z), 0);
 
-		auto direction = Vector!T.normalize( lightPosition - 
-		                                    collision.hit);
+		
+		Colour lambertColour = Colour( 1, 1, 1, 0 );
+		Colour specularColour = Colour( 1, 1, 1, 0 );
 
-		auto dot = Vector!T.dot( direction, collision.normal );
+		T lambertIntensity = 0;
+		T specularIntensity = 0;
 
-		if( dot < 0 ) dot = 0;
-
-		//lets do some shading
-		auto lambertColour =  dot * lightIntensity * collision.model.colour ;
-
-		//return lambertColour;
-		auto shadowRay = Ray!T( collision.hit, direction, 0.01 );
-
-		auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
-
-		if( shadowCollision.model is null )
+		foreach(light; renderContext.pointLights)
 		{
-			return lambertColour;
-		}
-		else
-		{
-			//writeln("in shadow");
-			//return Colour.RED; 
+			auto vectorToLight = light.position - collision.hit;
+			auto directionToLight = Vector!T.normalize( vectorToLight );
+			auto directionToCamera = Vector!T.normalize( renderContext.camera.transform.translation - collision.hit );
 
-			return Colour.BLACK;
+			//dont apply this light if its obfuscated
+			auto shadowRay = Ray!T( collision.hit, directionToLight, 0.00001, vectorToLight.magnitude() );
+			auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
+
+			//the shadow ray didn't reach the light, continue to next light
+			if( shadowCollision.model !is null )
+			{
+				//continue;
+			}
+
+			//diffuse calulation
+			auto lightDot = Vector!T.dot( directionToLight, collision.normal );
+
+			if( lightDot < 0 ) lightDot = 0;
+
+			lambertIntensity += lightDot * light.diffusePower;
+			lambertColour = lambertColour * light.diffuseColour;
+
+			//specular calculation
+			auto camToLight = Vector!T.normalize(directionToLight + directionToCamera);
+			auto cameraDot = Vector!T.dot(collision.normal, camToLight);
+
+			if( cameraDot < 0 ) cameraDot = 0;
+
+			auto intensity = pow( cameraDot, 100 );
+
+			specularIntensity += intensity * light.specularPower; 
+
+			specularColour = specularColour * light.specularColour;
+
 		}
+
+		return collision.model.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
 	}
 }
 
@@ -167,7 +183,6 @@ void main()
 	identity.translation = Vector!float( 2, -2, -4, 1 );
 	
 	renderContext.models ~= new Sphere!float(identity);
-
 	
 	identity.translation = Vector!float(0,3,-4,1);
 	
@@ -178,12 +193,21 @@ void main()
 	renderContext.models ~= new Sphere!float(identity);
 	
 	identity.translation = Vector!float( 0,-3,-4,1);
+
+	renderContext.models ~= new Sphere!float(identity);
+	
+	identity.translation = Vector!float( -6,0,-4,1);
 	
 	renderContext.models ~= new Sphere!float(identity);
 	
 	identity.translation = Vector!float( 3, 0, -4, 1 );
 
 	renderContext.models ~= new Sphere!float(identity);
+
+	//add the lights
+	renderContext.pointLights ~= PointLight!float(Vector!float(-10, 0, -4));
+	renderContext.pointLights ~= PointLight!float(Vector!float(10, 0, -4));
+	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, -4));
 
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	

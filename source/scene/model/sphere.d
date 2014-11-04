@@ -63,12 +63,13 @@ class Sphere(T) : Model!T
 		if (t > 0.0f)
 		{
 			collision.model = this;
-			collision.distance=t;//sqrt(a)*t;
+			collision.distance=sqrt(a)*t;
 			collision.hit=rayorig + t*raydir;
 			collision.normal=(collision.hit - pos) /radius;
 		}
 		else
 			return false;
+
 		return true;
 	}
 

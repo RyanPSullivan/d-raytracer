@@ -5,6 +5,8 @@ import source.scene.model.model;
 import source.math.vector;
 import source.colour;
 
+import source.scene.light.point;
+
 import std.conv;
 import std.stdio;
 
@@ -25,5 +27,6 @@ struct RenderContext(T)
 	Vector!T[] image;
 	Model!T[] models;
 	Colour backgroundColor;
+	PointLight!T[] pointLights;
 }
 
