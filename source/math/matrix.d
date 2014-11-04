@@ -24,11 +24,11 @@ struct Matrix(T)
 
 		if( w == 0 )
 		{
-			return Vector!T(x,y,x,w);
+			return Vector!T(x,y,z,1);
 		}
 		else
 		{
-			return Vector!T( x/w, y/w, z/w, 0 );
+			return Vector!T( x/w, y/w, z/w, 1 );
 		}
 	}
 

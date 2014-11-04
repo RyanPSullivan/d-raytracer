@@ -8,6 +8,7 @@ import source.math.matrix;
 
 import source.scene.rendercontext;
 
+import source.scene.model.collision;
 import source.scene.model.model;
 import source.scene.model.box3;
 import source.scene.model.sphere;
@@ -17,11 +18,7 @@ import source.colour;
 import source.math.ray;
 
 
-struct Collision(T)
-{
-	Model!T model;
-	Vector!T hit;
-}
+
 
 Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
 {
@@ -36,7 +33,7 @@ Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
 	// create the ray direction, looking down the z-axis
 	// and transform by the camera-to-world matrix
 	auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, -1));
-	
+
 	return Ray!float( rayOrigin, 
 	                 Vector!float.normalize(rayDirection), 
 	                 renderContext.camera.nearClippingPlane, 
@@ -45,30 +42,29 @@ Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
 }
 
 Collision!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
-	auto minDistance = T.max;
-	Model!T collidingModel = null;
+
+	auto collision = Collision!T();
+	collision.distance = T.max;
 	foreach(model; models)
 	{
-		T distance = 0;
-		if( model.intersects( ray, distance ) )
+		auto tempCollision = Collision!T();
+
+		if( model.intersects( ray, tempCollision ) )
 		{
-			if( distance < minDistance && distance > ray.min  )
+			if( tempCollision.distance < collision.distance 
+			   && tempCollision.distance > ray.min
+			   && tempCollision.distance < ray.max)
 			{
-				collidingModel = model;
-				minDistance = distance;
+				collision = tempCollision;
 			}
 		}
 	}
 
-	auto collision = Collision!T();
-	
-	collision.model = minDistance < ray.max ? collidingModel : null;
-	collision.hit = ray.origin + (ray.direction * (minDistance - 0.01)); //TODO:this magic number needs removing.
-
 	return collision;
 }
 
-Vector!float lightPosition = Vector!float(4, 0 -4, 1);
+Vector!float lightPosition = Vector!float(-10, 0, -4);
+float lightIntensity = 1;
 
 Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 {
@@ -82,23 +78,35 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 	}
 	else
 	{
-		auto direction = Vector!float.normalize(lightPosition - collision.hit);
+
+		//return Colour(abs(collision.normal.x), abs(collision.normal.y), abs(collision.normal.z), 0);
+
+		auto direction = Vector!T.normalize( lightPosition - 
+		                                    collision.hit);
+
+		auto dot = Vector!T.dot( direction, collision.normal);
+
+		if( dot < 0 ) dot = 0;
+		//writeln( to!string(direction) ~ " " ~ to!string(collision.normal));
 
 		//lets do some shading
-		auto shadowRay = Ray!T( collision.hit, direction);
+		auto lambertColour =  dot * lightIntensity * collision.model.colour ;
+
+		return lambertColour;
+		auto shadowRay = Ray!T( collision.hit, direction, 0.01 );
 
 		auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
 
-		if( shadowCollision.model is null)
+		if( shadowCollision.model is null )
 		{
-			return collision.model.colour;
+			return lambertColour;
 		}
 		else
 		{
 			//writeln("in shadow " ~ to!string(shadowCollision.hit) ~ "  " ~ to!string(shadowRay.origin));
-			//return Colour.RED;
+			return Colour.RED; 
 
-			return collision.model.colour * 0.2;
+			return lambertColour * 0.4;
 		}
 	}
 }
@@ -115,9 +123,6 @@ void generateBitmap(T)( string path, RenderContext!T renderContext )
 	auto f = File(path, "w");
 	auto imageWidth = renderContext.imageWidth;
 	auto imageHeight = renderContext.imageHeight;
-
-	
-	//generatePixel( 900, 438, renderContext);
 
 	//write header
 	f.write("P6\n" ~ to!string(imageWidth) ~ " " ~ to!string(imageHeight) ~ "\n255\n");
@@ -147,21 +152,40 @@ void main()
 	//auto renderContext = RenderContext!float(4096,4096);
 	auto identity = Matrix!float.identity;
 
-	identity.translation = Vector!float(0,0,-4,1);
+	//diagonal spheres
+	identity.translation = Vector!float(2,2,-4,1);
 	
 	renderContext.models ~= new Sphere!float(identity);
 
-	identity.translation = Vector!float(-1,-2,-4,1);
+	identity.translation = Vector!float(-2, 2,-4,1);
 	
 	renderContext.models ~= new Sphere!float(identity);
 
-	identity.translation = Vector!float(-2,-4,-4,1);
+	identity.translation = Vector!float(-2,-2,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+
+	identity.translation = Vector!float( 2, -2, -4, 1 );
 	
 	renderContext.models ~= new Sphere!float(identity);
 
 	
+	identity.translation = Vector!float(0,3,-4,1);
+	
 	renderContext.models ~= new Sphere!float(identity);
 	
+	identity.translation = Vector!float(-3, 0,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+	
+	identity.translation = Vector!float( 0,-3,-4,1);
+	
+	renderContext.models ~= new Sphere!float(identity);
+	
+	identity.translation = Vector!float( 3, 0, -4, 1 );
+
+	renderContext.models ~= new Sphere!float(identity);
+
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	
 

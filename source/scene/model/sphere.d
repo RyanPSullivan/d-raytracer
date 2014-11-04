@@ -8,6 +8,8 @@ import source.math.ray;
 
 import source.scene.model.model;
 
+import source.scene.model.collision;
+
 import std.stdio;
 import std.conv;
 
@@ -54,10 +56,9 @@ class Sphere(T) : Model!T
 	}
 
 	// Constructor code
-	override bool intersects(Ray!T ray, ref T t) 
+	void intersects(Ray!T ray, ref Collision!T collision) 
 	{
 		auto rorig = transformation.multVecMatrix(ray.origin);
-
 		auto rdir = transformation.multDirMatrix(ray.direction);
 
 		T a = Vector!T.dot(rdir, rdir);
@@ -65,17 +66,57 @@ class Sphere(T) : Model!T
 		T c = Vector!T.dot(rorig, rorig) - radiusSquared;
 		T t0 = 0;
 		T t1 = 0;
-		if (!solveQuadratic(a, b, c, t0, t1) || t1 < 0) return false;
+		if (!solveQuadratic(a, b, c, t0, t1) || t1 < 0) return;
 
 		if (t1 < t0) 
 			swap(t0, t1);
 
-		
-		t = (t0 < 0) ? t1 : t0; 
+		T t = (t0 < 0) ? t1 : t0; 
 
+		collision.model = this;
+		collision.distance = t;
+		collision.hit = rorig + rdir * (t - 0); //remove magic number
+		collision.normal = (collision.hit - transformation.translation)/radius;
+
+		
+		return;
+	}
+
+	override bool intersects(Ray!T ray, ref Collision!T collision) 
+	{
+
+		auto rayorig = ray.origin; //transformation.multVecMatrix(ray.origin);
+		auto raydir = ray.direction; //transformation.multDirMatrix(ray.direction);
+
+		auto pos = transformation.translation;
+
+		
+		float a = Vector!T.dot(raydir,raydir);
+
+		float b = Vector!T.dot(raydir , (2.0f * (rayorig-pos)));
+		float c = Vector!T.dot(pos,pos) + Vector!T.dot(rayorig,rayorig) -2.0f*Vector!T.dot(rayorig,pos) - radiusSquared;
+		float D = b*b + (-4.0f)*a*c;
+		
+		// If ray can not intersect then stop
+		if (D < 0)
+			return false;
+		D=sqrt(D);
+		
+		// Ray can intersect the sphere, solve the closer hitpoint
+		float t = (-0.5f)*(b+D)/a;
+		if (t > 0.0f)
+		{
+			collision.model = this;
+			collision.distance=t;//sqrt(a)*t;
+			collision.hit=rayorig + t*raydir;
+			collision.normal=(collision.hit - pos) /radius;
+		}
+		else
+			return false;
 		return true;
 	}
 
+	
 	private T radius;
 	private T radiusSquared;
 }

@@ -6,6 +6,7 @@ module source.math.vector;
 import core.simd;
 import core.math;
 
+
 struct Vector(T)
 {
 
@@ -43,23 +44,29 @@ public:
 		z = z / mag;
 	}
 
-	Vector opBinary(string op)(Vector rhs) 
-		if( op == "-")
-	{
-		return Vector!T(this.x - rhs.x, this.y - rhs.y, this.z - rhs.z);
-	}
-
-	Vector opBinary(string op)(Vector rhs) 
-		if( op == "+")
-	{
-		return Vector!T(this.x + rhs.x, this.y + rhs.y, this.z + rhs.z);
-	}
-
 	
-	Vector opBinary( string op, U )( U scalar )
-		if( op == "*")
+
+	Vector opBinary(string op)(Vector rhs) 
 	{
-		return Vector!T(this.x * scalar, this.y * scalar, this.z * scalar);
+		static if( op == "+")
+		{
+			return Vector!T(this.x + rhs.x, this.y + rhs.y, this.z + rhs.z);
+		}
+		else if( op == "-")
+		{
+			return Vector!T(this.x - rhs.x, this.y - rhs.y, this.z - rhs.z);
+		}
+	}
+	Vector opBinaryRight( string op )( float scalar )
+	{
+		mixin("
+			return Vector!T(this.x " ~ op ~ " scalar, this.y " ~ op ~ " scalar, this.z " ~ op ~ " scalar);");
+	}
+
+	Vector opBinary( string op )( float scalar )
+	{
+		mixin("
+			return Vector!T(this.x " ~ op ~ " scalar, this.y " ~ op ~ " scalar, this.z " ~ op ~ " scalar);");
 	}
 
 	Vector opUnary(string op)() if( op == "-" )

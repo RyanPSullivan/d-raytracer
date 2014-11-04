@@ -17,12 +17,17 @@ struct Colour
 		this.elements = rgba;
 	}
 
+	static immutable Colour WHITE = Colour(1,1,1,0);
 	static immutable Colour BLACK = Colour( 0, 0, 0, 0 );
-	static immutable Colour RED = Colour( 1.0f, 0, 0, 0 );
+	static immutable Colour RED = Colour( 1, 0, 0, 0 );
 	
 	Colour opBinary(string op)(float scalar) if( op == "*")
 	{
 		return Colour( r * scalar, g * scalar, b * scalar, a * scalar );
+	}
+	Colour opBinaryRight( string op)(float scalar ) if( op == "*")
+	{
+		return this * scalar;
 	}
 
 	@property  const float r() { return elements.array[0]; }
