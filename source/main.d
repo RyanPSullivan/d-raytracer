@@ -84,15 +84,14 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 		auto direction = Vector!T.normalize( lightPosition - 
 		                                    collision.hit);
 
-		auto dot = Vector!T.dot( direction, collision.normal);
+		auto dot = Vector!T.dot( direction, collision.normal );
 
 		if( dot < 0 ) dot = 0;
-		//writeln( to!string(direction) ~ " " ~ to!string(collision.normal));
 
 		//lets do some shading
 		auto lambertColour =  dot * lightIntensity * collision.model.colour ;
 
-		return lambertColour;
+		//return lambertColour;
 		auto shadowRay = Ray!T( collision.hit, direction, 0.01 );
 
 		auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
@@ -103,10 +102,10 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 		}
 		else
 		{
-			//writeln("in shadow " ~ to!string(shadowCollision.hit) ~ "  " ~ to!string(shadowRay.origin));
-			return Colour.RED; 
+			//writeln("in shadow");
+			//return Colour.RED; 
 
-			return lambertColour * 0.4;
+			return Colour.BLACK;
 		}
 	}
 }
