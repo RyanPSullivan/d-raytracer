@@ -19,6 +19,13 @@ class Model(T)
 		//this.shade = Colour.WHITE;
 	}
 
+	protected void swap( ref T first, ref T second )
+	{
+		T temp = first;
+		first = second;
+		second = temp;
+	}
+
 	abstract bool intersects( Ray!T ray, ref Collision!T collision );
 
 	@property bool isTransparent() { return transparent; }

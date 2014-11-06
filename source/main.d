@@ -1,5 +1,4 @@
 import std.stdio;
-import std.stdio;
 import std.math;
 import std.conv;
 
@@ -11,7 +10,7 @@ import source.scene.rendercontext;
 import source.scene.light.point;
 import source.scene.model.collision;
 import source.scene.model.model;
-import source.scene.model.box3;
+import source.scene.model.box;
 import source.scene.model.sphere;
 import source.scene.camera;
 
@@ -74,7 +73,7 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 	}
 	else
 	{
-
+		//return Colour.WHITE;
 		//return Colour(abs(collision.normal.x), abs(collision.normal.y), abs(collision.normal.z), 0);
 
 		
@@ -97,7 +96,7 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 			//the shadow ray didn't reach the light, continue to next light
 			if( shadowCollision.model !is null )
 			{
-				//continue;
+				continue;
 			}
 
 			//diffuse calulation
@@ -170,19 +169,19 @@ void main()
 	//diagonal spheres
 	identity.translation = Vector!float(2,2,-4,1);
 	
-	renderContext.models ~= new Sphere!float(identity);
+	renderContext.models ~= new Box!float(2,2,2,identity);
 
 	identity.translation = Vector!float(-2, 2,-4,1);
 	
-	renderContext.models ~= new Sphere!float(identity);
+	renderContext.models ~= new Box!float(2,2,2,identity);
 
 	identity.translation = Vector!float(-2,-2,-4,1);
 	
-	renderContext.models ~= new Sphere!float(identity);
+	renderContext.models ~= new Box!float(2,2,2,identity);
 
 	identity.translation = Vector!float( 2, -2, -4, 1 );
 	
-	renderContext.models ~= new Sphere!float(identity);
+	renderContext.models ~= new Box!float(2,2,2,identity);
 	
 	identity.translation = Vector!float(0,3,-4,1);
 	
@@ -207,7 +206,7 @@ void main()
 	//add the lights
 	renderContext.pointLights ~= PointLight!float(Vector!float(-10, 0, -4));
 	renderContext.pointLights ~= PointLight!float(Vector!float(10, 0, -4));
-	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, -4));
+	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 0));
 
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	

@@ -22,13 +22,6 @@ class Sphere(T) : Model!T
 		this.radiusSquared = radius * radius;
 	}
 
-	void swap( ref T first, ref T second )
-	{
-		T temp = first;
-		first = second;
-		second = temp;
-	}
-
 	unittest
 	{
 		int a = 6;
