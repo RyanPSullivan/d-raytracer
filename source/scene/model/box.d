@@ -21,6 +21,7 @@ class Box(T) : Model!T
 		this.depth = depth;
 		this.height = height;
 	}
+
 	
 	override bool intersects(Ray!T r, ref Collision!T collision) 
 	{
@@ -42,7 +43,7 @@ class Box(T) : Model!T
 		
 		auto tmin = (minX - rOrig.x) / rDir.x;
 		auto tmax = (maxX - rOrig.x) / rDir.x;
-		
+
 		if (tmin > tmax) 
 		{
 			swap(tmin,tmax);
@@ -60,7 +61,7 @@ class Box(T) : Model!T
 		if ((tmin > tymax) || (tymin > tmax))
 			return false;
 
-		normal = Vector!T(1,0,0);
+		normal = Vector!T( 1,0,0 );
 
 		if (tymin > tmin)
 		{
@@ -91,13 +92,19 @@ class Box(T) : Model!T
 		
 		if (tzmax < tmax)
 			tmax = tzmax;
-		
 
-		//writeln( to!string(tmin) ~ " " ~ to!string(tmax));
+		
+		//the normal should not be in the same direction as the ray,
+		//if it is we need to flip it.
+		if( Vector!T.dot( normal, rDir ) > 0 )
+		{
+			normal = normal * -1;
+		}
+
 		collision.model = this;
 		collision.distance = tmin;
 		collision.hit = r.origin + tmin * r.direction;
-		collision.normal= normal;
+		collision.normal = transformation.multDirMatrix(normal);
 
 		return true;
 	}

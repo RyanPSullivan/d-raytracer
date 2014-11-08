@@ -17,9 +17,9 @@ struct Colour
 		this.elements = rgba;
 	}
 
-	static immutable Colour WHITE = Colour(1,1,1,0);
-	static immutable Colour BLACK = Colour( 0, 0, 0, 0 );
-	static immutable Colour RED = Colour( 1, 0, 0, 0 );
+	static immutable Colour White = Colour(1,1,1,0);
+	static immutable Colour Black = Colour( 0, 0, 0, 0 );
+	static immutable Colour Red = Colour( 1, 0, 0, 0 );
 
 	
 	Colour opBinary( string op )( Colour rhs )
@@ -56,6 +56,6 @@ struct Colour
 	@property const float a() { return elements.array[3]; }
 	@property float a( float value ) { return elements.array[3] = value; }
 	
-private:
-	float4 elements;
+
+	private float4 elements;
 }

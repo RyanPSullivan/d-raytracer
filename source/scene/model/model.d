@@ -14,12 +14,10 @@ class Model(T)
 	this( Matrix!T transformation )
 	{
 		this.transformation = transformation;
-		this.shade = Colour(uniform(0.0f, 1.0f), uniform(0.0f, 1.0f), uniform(0.0f, 1.0f), 0);
-
-		//this.shade = Colour.WHITE;
+		this.shade = Colour( uniform( 0.0f, 1.0f ), uniform( 0.0f, 1.0f ), uniform( 0.0f, 1.0f ), 0 );
 	}
 
-	protected void swap( ref T first, ref T second )
+	protected static void swap( ref T first, ref T second )
 	{
 		T temp = first;
 		first = second;
@@ -37,5 +35,14 @@ class Model(T)
 	private bool transparent;
 	private bool reflective;
 
+	unittest
+	{
+		T a = 6;
+		T b = 10;
+		
+		swap(a,b);
+		
+		assert( b == 6 && a == 10);
+	}
 }
 

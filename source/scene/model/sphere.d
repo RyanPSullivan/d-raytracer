@@ -22,23 +22,14 @@ class Sphere(T) : Model!T
 		this.radiusSquared = radius * radius;
 	}
 
-	unittest
-	{
-		int a = 6;
-		int b = 10;
-
-		swap(a,b);
-
-		assert( b == 6 && a == 10);
-	}
+	
 
 	override bool intersects(Ray!T ray, ref Collision!T collision) 
 	{
-		auto rayorig = ray.origin; //transformation.multVecMatrix(ray.origin);
-		auto raydir = ray.direction; //transformation.multDirMatrix(ray.direction);
+		auto rayorig = ray.origin;
+		auto raydir = ray.direction; 
 
 		auto pos = transformation.translation;
-
 		
 		float a = Vector!T.dot(raydir,raydir);
 
@@ -65,7 +56,6 @@ class Sphere(T) : Model!T
 
 		return true;
 	}
-
 	
 	private T radius;
 	private T radiusSquared;

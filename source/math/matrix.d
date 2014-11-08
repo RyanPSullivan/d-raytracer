@@ -194,7 +194,21 @@ struct Matrix(T)
 
 	}
 
-	@property static Matrix identity()
+	public static Matrix createLookAt( Vector!T position,
+	                                  Vector!T target,
+	                                  Vector!T up )
+	{
+		Matrix mat;
+
+		mat.up = up;
+		mat.forward = Vector!T.normalize(target - position);
+		mat.right = Vector!T.cross(mat.up, mat.forward);
+		mat.translation = position;
+
+		return mat;
+	}
+
+	@property static immutable Matrix identity()
 	{
 		return Matrix(1, 0, 0, 0,
 		              0, 1, 0, 0,
@@ -203,11 +217,29 @@ struct Matrix(T)
 	}
 
 	
+	@property Vector!T right() { return Vector!T(m[0]); }
+	@property Vector!T up() { return Vector!T(m[1]); }
+	@property Vector!T forward() { return Vector!T(m[2]); }
 	@property Vector!T translation() { return Vector!T(m[3]); }
+
+	@property void right( Vector!T value )
+	{
+		m[0] = value.elements;
+	}
+
+	@property void up( Vector!T value )
+	{
+		m[1] = value.elements;
+	}
+
+	@property void forward( Vector!T value )
+	{
+		m[2] = value.elements;
+	}
 
 	@property void translation( Vector!T value ) 
 	{ 
-		m[3][0] = value.x; m[3][1] = value.y; m[3][2] = value.z; m[3][3] = value.w;
+		m[3] = value.elements;
 	}
 
 	private T[4][4] m;

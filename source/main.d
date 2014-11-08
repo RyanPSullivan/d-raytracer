@@ -130,7 +130,7 @@ Colour generatePixel(T)( int x, int y, RenderContext!T renderContext )
 	auto ray = calculateRayForPixel!float(x,y, renderContext );
 
 	return trace!float( ray, 0, renderContext ); 
-}
+}	
 
 void generateBitmap(T)( string path, RenderContext!T renderContext )
 {
