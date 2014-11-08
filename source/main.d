@@ -162,56 +162,60 @@ void generateBitmap(T)( string path, RenderContext!T renderContext )
 
 void main()
 {
-	auto renderContext = RenderContext!float(1920,1080);
+	int multiplier = 10;
+	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
 	//auto renderContext = RenderContext!float(4096,4096);
 	auto identity = Matrix!float.identity;
 
+	
+	//big box around everything
+
+	identity.translation = Vector!float(0,0,15);
+	renderContext.models ~= new Box!float(15,10,30,identity);
+
+	
 	//diagonal spheres
-	identity.translation = Vector!float(2,2,-4,1);
-	
-	renderContext.models ~= new Box!float(2,2,2,identity);
-
-	identity.translation = Vector!float(-2, 2,-4,1);
-	
-	renderContext.models ~= new Box!float(2,2,2,identity);
-
-	identity.translation = Vector!float(-2,-2,-4,1);
-	
-	renderContext.models ~= new Box!float(2,2,2,identity);
-
-	identity.translation = Vector!float( 2, -2, -4, 1 );
+	identity.translation = Vector!float(2,2,5,1);
 	
 	renderContext.models ~= new Box!float(2,2,2,identity);
 	
-	identity.translation = Vector!float(0,3,-4,1);
+	identity.translation = Vector!float(-2, 2,5,1);
+	
+	renderContext.models ~= new Box!float(2,2,2,identity);
+	
+	identity.translation = Vector!float(-2,-2,5,1);
+	
+	renderContext.models ~= new Box!float(2,2,2,identity);
+	
+	identity.translation = Vector!float( 2, -2, 5, 1 );
+	
+	renderContext.models ~= new Box!float(2,2,2,identity);
+	
+	identity.translation = Vector!float(0,3,5,1);
 	
 	renderContext.models ~= new Sphere!float(identity);
 	
-	identity.translation = Vector!float(-3, 0,-4,1);
-	
-	renderContext.models ~= new Sphere!float(identity);
-	
-	identity.translation = Vector!float( 0,-3,-4,1);
+	identity.translation = Vector!float(-3, 0,5,1);
 
 	renderContext.models ~= new Sphere!float(identity);
 	
-	identity.translation = Vector!float( -6,0,-4,1);
+	identity.translation = Vector!float( 0,-3,5,1);
 	
 	renderContext.models ~= new Sphere!float(identity);
 	
-	identity.translation = Vector!float( 3, 0, -4, 1 );
-
+	identity.translation = Vector!float( 3, 0, 5, 1 );
+	
 	renderContext.models ~= new Sphere!float(identity);
 
 	//add the lights
-	renderContext.pointLights ~= PointLight!float(Vector!float(-10, 0, -4));
-	renderContext.pointLights ~= PointLight!float(Vector!float(10, 0, -4));
-	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 0));
+	renderContext.pointLights ~= PointLight!float(Vector!float(-6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 9));
 
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	
 
-	renderContext.camera = Camera!float(cameraTransform,30);
+	renderContext.camera = Camera!float(cameraTransform,45);
 
 	generateBitmap("output.ppm", renderContext);
 

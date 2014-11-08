@@ -1,5 +1,7 @@
 ﻿module source.math.matrix;
 
+import std.stdio;
+
 import source.math.vector;
 
 struct Matrix(T)
@@ -179,7 +181,7 @@ struct Matrix(T)
 		
 		if (det == 0)
 		{
-
+			writeln("oops det is 0");
 			for (i = 0; i < 16; i++)
 				inv[i] = T.infinity;
 		}

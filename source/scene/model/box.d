@@ -13,13 +13,13 @@ import std.math;
 
 class Box(T) : Model!T
 {
-	this(T width, T depth, T height, Matrix!T transform)
+	this(T width, T height, T depth, Matrix!T transform)
 	{
 		super(transform);
 
 		this.width = width;
-		this.depth = depth;
 		this.height = height;
+		this.depth = depth;
 	}
 
 	
@@ -31,12 +31,13 @@ class Box(T) : Model!T
 		auto rOrig = inverseTransform.multVecMatrix(r.origin);
 		auto rDir = inverseTransform.multDirMatrix(r.direction);
 
-		Vector!T normal;
+		Vector!T minN;
+		Vector!T maxN;
 
 		auto maxX = this.width/2;
 		auto minX = - maxX;
 		auto maxY = this.height/2;
-		auto minY = -maxX;
+		auto minY = -maxY;
 		auto maxZ = this.depth/2;
 		auto minZ = -maxZ;
 
@@ -59,19 +60,28 @@ class Box(T) : Model!T
 		}
 		
 		if ((tmin > tymax) || (tymin > tmax))
-			return false;
+		{
 
-		normal = Vector!T( 1,0,0 );
+			return false;
+		}
+		
+
+		minN = Vector!T( 1,0,0 );
+		maxN = Vector!T( 1,0,0 );
 
 		if (tymin > tmin)
 		{
-			normal = Vector!T(0,1,0);
+			minN = Vector!T(0,1,0);
 			tmin = tymin;
 		}
 		
 
 		if (tymax < tmax)
+		{
+			maxN = Vector!T(0,1,0);
 			tmax = tymax;
+		}
+		
 		
 		auto tzmin = (minZ - rOrig.z) / rDir.z;
 		auto tzmax = (maxZ - rOrig.z) / rDir.z;
@@ -82,29 +92,45 @@ class Box(T) : Model!T
 		}
 		
 		if ((tmin > tzmax) || (tzmin > tmax))
+		{
 			return false;
+		}
 		
 		if (tzmin > tmin)
 		{
-			normal = Vector!T(0,0,1);
+			minN = Vector!T(0,0,1);
 			tmin = tzmin;
 		}
 		
 		if (tzmax < tmax)
+		{ 
+			maxN = Vector!T(0,0,1);
 			tmax = tzmax;
-
+		}
 		
+		
+
+		//if the minimum point is behind us we dont care,
+		//we are inside the box, use the max intersection
+		if( tmin < 0)
+		{
+			tmin = tmax;
+			minN = maxN;
+		}
+
 		//the normal should not be in the same direction as the ray,
 		//if it is we need to flip it.
-		if( Vector!T.dot( normal, rDir ) > 0 )
+		if( Vector!T.dot( minN, rDir ) > 0 )
 		{
-			normal = normal * -1;
+			minN = minN * -1;
 		}
 
 		collision.model = this;
 		collision.distance = tmin;
-		collision.hit = r.origin + tmin * r.direction;
-		collision.normal = transformation.multDirMatrix(normal);
+		collision.hit = r.origin +  tmin * r.direction;
+		collision.normal = transformation.multDirMatrix(minN);
+
+		
 
 		return true;
 	}
