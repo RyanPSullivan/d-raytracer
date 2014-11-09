@@ -29,11 +29,18 @@ struct Colour
 	}
 
 	Colour opBinary(string op)(float scalar) 
-		if( op == "*")
 	{
-		return Colour( r * scalar, g * scalar, b * scalar, a * scalar );
+		if( op == "*")
+		{
+			return Colour( r * scalar, g * scalar, b * scalar, a * scalar );
+		}
+		else if( op == "/")
+		{
+			return Colour( r / scalar, g / scalar, b / scalar, a / scalar );
+		}
 	}
 
+	
 	Colour opBinaryRight( string op)(float scalar ) if( op == "*")
 	{
 		return this * scalar;

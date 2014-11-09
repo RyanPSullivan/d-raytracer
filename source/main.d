@@ -1,6 +1,9 @@
 import std.stdio;
 import std.math;
 import std.conv;
+import std.random;
+import std.parallelism;
+import std.range;
 
 import source.math.vector;
 import source.math.matrix;
@@ -17,15 +20,15 @@ import source.scene.camera;
 import source.colour;
 import source.math.ray;
 
-Ray!T calculateRayForPixel(T)( int x, int y, RenderContext!T renderContext)
+Ray!T calculateRayForPixel(T)( ulong x, ulong y, RenderContext!T renderContext)
 {
 	Matrix!float camToWorld = renderContext.camera.transform;
 	
 	auto rayOrigin = camToWorld.multVecMatrix(Vector!float(0,0,0));
 
 	// remap from raster to screen space
-	float xx = (2 * ((x + 0.5) / renderContext.imageWidth) - 1)  * renderContext.camera.angle * renderContext.imageAspectRatio;
-	float yy = (1 - 2 *((y + 0.5) / renderContext.imageHeight))  * renderContext.camera.angle;
+	float xx = (2 * ((x + 0.5) / renderContext.width) - 1)  * renderContext.camera.angle * renderContext.imageAspectRatio;
+	float yy = (1 - 2 *((y + 0.5) / renderContext.height))  * renderContext.camera.angle;
 	
 	// create the ray direction, looking down the z-axis
 	// and transform by the camera-to-world matrix
@@ -76,7 +79,6 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 		//return Colour.WHITE;
 		//return Colour(abs(collision.normal.x), abs(collision.normal.y), abs(collision.normal.z), 0);
 
-		
 		Colour lambertColour = Colour( 1, 1, 1, 0 );
 		Colour specularColour = Colour( 1, 1, 1, 0 );
 
@@ -125,28 +127,80 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 	}
 }
 
-Colour generatePixel(T)( int x, int y, RenderContext!T renderContext )
+Colour generatePixel(T, float dof)( ulong x, ulong y, RenderContext!T renderContext )
 {
-	auto ray = calculateRayForPixel!float(x,y, renderContext );
+	auto originalRay = calculateRayForPixel!float(x,y, renderContext );
+	int depth = 0;
 
-	return trace!float( ray, 0, renderContext ); 
+	static if( dof == 0 )
+	{
+		return trace!T( originalRay, depth, renderContext );
+	}
+	else
+	{
+		float pixelWidth = 1.0f / renderContext.width;
+		float pixelHeight = 1.0f / renderContext.height;
+
+		int focusPoint = 2;
+		Colour result = Colour(0,0,0,0);
+
+		//Now here I compute point P in the scene where I want to focus my scene
+		auto P = originalRay.origin + focusPoint * originalRay.direction;
+
+		auto samples = 16;
+
+		//Stratified Sampling i.e. Random sampling (with 16 samples) inside each pixel to add DOF
+		foreach( i; 0..samples)
+		{
+			float rw  = uniform(-1.0f,1.0f);
+			float rh  = uniform(-1.0f,1.0f);
+			
+			float dx =  ( (rw) * 3 * pixelWidth) ;
+			float dy =  ( (rh) * 3 * pixelHeight);
+			
+			auto origin = Vector!T(originalRay.origin.x + dx, originalRay.origin.y + dy, originalRay.origin.z, 1);
+			
+			auto dir = Vector!T.normalize(P - origin);
+			
+			auto ray  = Ray!T(origin, dir, renderContext.camera.nearClippingPlane, renderContext.camera.farClippingPlane);
+			
+			result = result + trace!T( ray, depth, renderContext );
+		}
+		
+		
+		return result / cast(float)samples; 
+	}
 }	
 
-void generateBitmap(T)( string path, RenderContext!T renderContext )
+Colour[][] generateImageBuffer(T)( RenderContext!T renderContext )
 {
-	auto f = File(path, "w");
-	auto imageWidth = renderContext.imageWidth;
-	auto imageHeight = renderContext.imageHeight;
+	auto imageWidth = renderContext.width;
+	auto imageHeight = renderContext.height;
 
-	//write header
-	f.write("P6\n" ~ to!string(imageWidth) ~ " " ~ to!string(imageHeight) ~ "\n255\n");
-	//write bitmap data
-	foreach(y; 0..imageHeight)
+	auto outputBuffer = new Colour[][](imageHeight, imageWidth);
+
+	foreach(y, ref row; parallel(outputBuffer))
 	{
-		foreach(x; 0..imageWidth)
+		foreach(x, ref pixel; parallel(row))
 		{
-			auto pixel = generatePixel( imageWidth - x, imageHeight - y, renderContext);
-			
+			pixel = generatePixel!(T,0)(imageWidth - x, imageHeight - y, renderContext);
+		}
+	}
+
+	return outputBuffer;
+}
+
+
+void WriteToFile(string path, Colour[][] output)
+{
+	//write header
+	auto f = File(path, "w");
+
+	f.write("P6\n" ~ to!string(output[0].length) ~ " " ~ to!string(output.length) ~ "\n255\n");
+	foreach( row; output)
+	{
+		foreach( pixel; row )
+		{
 			auto r = cast(char)(fmin(pixel.r * 255 + 0.5f, 255));
 			auto g = cast(char)(fmin(pixel.g * 255 + 0.5f, 255));
 			auto b = cast(char)(fmin(pixel.b * 255 + 0.5f, 255));
@@ -217,8 +271,9 @@ void main()
 
 	renderContext.camera = Camera!float(cameraTransform,45);
 
-	generateBitmap("output.ppm", renderContext);
+	auto imageBuffer = generateImageBuffer!float(renderContext);
 
+	
 	writeln("done");
 }
 
