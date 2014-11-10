@@ -17,13 +17,6 @@ class Model(T)
 		this.shade = Colour( uniform( 0.0f, 1.0f ), uniform( 0.0f, 1.0f ), uniform( 0.0f, 1.0f ), 0 );
 	}
 
-	protected static void swap( ref T first, ref T second )
-	{
-		T temp = first;
-		first = second;
-		second = temp;
-	}
-
 	abstract bool intersects( Ray!T ray, ref Collision!T collision );
 
 	@property bool isTransparent() { return transparent; }
@@ -33,7 +26,7 @@ class Model(T)
 	protected Matrix!T transformation;
 	private Colour shade;
 	private bool transparent;
-	private bool reflective;
+	protected bool reflective;
 
 	unittest
 	{

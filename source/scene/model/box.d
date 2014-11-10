@@ -6,7 +6,7 @@ import source.math.vector;
 import source.math.matrix;
 import source.math.ray;
 
-
+import std.algorithm;
 import std.conv;
 import std.stdio;
 import std.math;
@@ -20,6 +20,8 @@ class Box(T) : Model!T
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
+
+		reflective = false;
 	}
 
 	
@@ -30,7 +32,7 @@ class Box(T) : Model!T
 		//move the ray into object space
 		auto rOrig = inverseTransform.multVecMatrix(r.origin);
 		auto rDir = inverseTransform.multDirMatrix(r.direction);
-
+		rOrig = rOrig + rDir * r.min;
 		Vector!T minN;
 		Vector!T maxN;
 

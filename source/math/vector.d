@@ -80,6 +80,12 @@ public:
 		return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 	}
 
+	static Vector reflect( Vector inward, Vector normal )
+	{
+		//d−2(d⋅n)n
+		return inward - 2 * Vector.dot(inward,normal) * normal;
+
+	}
 	static Vector cross( Vector lhs, Vector rhs )
 	{
 		return Vector(lhs.y * rhs.z - lhs.z * rhs.y,

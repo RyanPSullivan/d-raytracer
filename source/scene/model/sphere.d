@@ -15,14 +15,15 @@ import std.conv;
 
 class Sphere(T) : Model!T
 {
-	this(Matrix!T transform = Matrix!T.identity, float radius = 1 )
+	this(Matrix!T transform = Matrix!T.identity, 
+	     float radius = 1 )
 	{
 		super(transform);
 		this.radius = radius;
 		this.radiusSquared = radius * radius;
-	}
 
-	
+		reflective = true;
+	}
 
 	override bool intersects(Ray!T ray, ref Collision!T collision) 
 	{

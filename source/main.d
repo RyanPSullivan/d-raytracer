@@ -67,9 +67,8 @@ Collision!T getClosestCollidingModel(T)(Ray!T ray, Model!T[] models){
 Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 {
 	auto collision = getClosestCollidingModel!T( ray, renderContext.models );
-
 	
-	//no collision occured return a black pixel for now                                                                                                                                                                      
+	//no co	llision occured return a black pixel for now                                                                                                                                                                      
 	if( collision.model is null )
 	{
 		return renderContext.backgroundColor;
@@ -77,8 +76,8 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 	else
 	{
 		//return Colour.WHITE;
-		//return Colour(abs(collision.normal.x), abs(collision.normal.y), abs(collision.normal.z), 0);
-
+		//return Colour((collision.normal.x + 1)/2, (collision.normal.y + 1)/2, (collision.normal.z + 1)/2, 0);
+		
 		Colour lambertColour = Colour( 1, 1, 1, 0 );
 		Colour specularColour = Colour( 1, 1, 1, 0 );
 
@@ -92,7 +91,7 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 			auto directionToCamera = Vector!T.normalize( renderContext.camera.transform.translation - collision.hit );
 
 			//dont apply this light if its obfuscated
-			auto shadowRay = Ray!T( collision.hit, directionToLight, 0.00001, vectorToLight.magnitude() );
+			auto shadowRay = Ray!T( collision.hit, directionToLight, 0.01, vectorToLight.magnitude() );
 			auto shadowCollision = getClosestCollidingModel( shadowRay, renderContext.models );
 
 			//the shadow ray didn't reach the light, continue to next light
@@ -120,10 +119,25 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 			specularIntensity += intensity * light.specularPower; 
 
 			specularColour = specularColour * light.specularColour;
-
 		}
 
-		return collision.model.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
+		auto shadingColour = collision.model.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
+
+		
+		if( depth < 2 && 
+		   collision.model.isReflective )
+		{
+			auto reflectionRay = Ray!T(collision.hit,
+			                           Vector!T.normalize(Vector!T.reflect(ray.direction,collision.normal)),
+			                           0.01,
+			                           1000);
+
+			return  trace(reflectionRay, depth+1,renderContext) * shadingColour;
+		}
+		else
+		{
+			return shadingColour;
+		}
 	}
 }
 
@@ -179,11 +193,13 @@ Colour[][] generateImageBuffer(T)( RenderContext!T renderContext )
 
 	auto outputBuffer = new Colour[][](imageHeight, imageWidth);
 
+	auto count = 0;
 	foreach(y, ref row; parallel(outputBuffer))
 	{
 		foreach(x, ref pixel; parallel(row))
 		{
 			pixel = generatePixel!(T,0)(imageWidth - x, imageHeight - y, renderContext);
+			writeln(to!string(100*count++/cast(float)(imageWidth*imageHeight)));
 		}
 	}
 
@@ -222,6 +238,12 @@ void main()
 	auto identity = Matrix!float.identity;
 
 	
+	auto a = Vector!float(0,-1,0);
+	auto b = Vector!float(0,1,0);
+	auto result = Vector!float.reflect( a, b );
+
+	writeln(result);
+	
 	//big box around everything
 
 	identity.translation = Vector!float(0,0,15);
@@ -250,7 +272,7 @@ void main()
 	renderContext.models ~= new Sphere!float(identity);
 	
 	identity.translation = Vector!float(-3, 0,5,1);
-
+	
 	renderContext.models ~= new Sphere!float(identity);
 	
 	identity.translation = Vector!float( 0,-3,5,1);
@@ -273,7 +295,7 @@ void main()
 
 	auto imageBuffer = generateImageBuffer!float(renderContext);
 
-	
+	WriteToFile("output.ppm", imageBuffer);
 	writeln("done");
 }
 
