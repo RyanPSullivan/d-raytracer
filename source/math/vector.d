@@ -1,6 +1,3 @@
-/* program prints a
- hello world message
- to the console.  */
 module source.math.vector;
 
 import core.simd;
@@ -105,19 +102,20 @@ public:
 	@property T w() { return elements[3]; }
 	@property T w( T value ) { return elements[3] = value; }
 
+	static @property immutable pure Vector!T up() { return Vector!T(0,1,0); }
+
 	T[4] elements;
 }
 
 unittest
 {
 	//test subtraction
-	auto result = Vector!float(1,0,0) - Vector!float(0,0,0);
+	assert(Vector!float(1,0,0) - Vector!float(0,0,0) == Vector!float(1,0,0) );
 
-	assert(result.x == 1 );
+	//test multiplication
+	assert(  Vector!float(1,2,3) * 2 == Vector!float(2,4,6) );
 
-	
-	//test multiple
-	result = Vector!float(1,2,3) * 2;
-
-	assert( result.x == 2 && result.y == 4 && result.z == 6 );
+	//test reflection
+	assert( Vector!float.reflect( Vector!float(0,-1,0), Vector!float(0,1,0) ) == Vector!float(0,1,0));
+	assert( Vector!float.reflect( Vector!float(1,0,-1), Vector!float(0,1,0) ) == Vector!float(1,0,1));
 }

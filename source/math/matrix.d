@@ -221,6 +221,7 @@ struct Matrix(T)
 	
 	@property Vector!T right() { return Vector!T(m[0]); }
 	@property Vector!T up() { return Vector!T(m[1]); }
+	@property Vector!T down() { return - Vector!T(m[1]); }
 	@property Vector!T forward() { return Vector!T(m[2]); }
 	@property Vector!T translation() { return Vector!T(m[3]); }
 
@@ -234,6 +235,7 @@ struct Matrix(T)
 		m[1] = value.elements;
 	}
 
+	
 	@property void forward( Vector!T value )
 	{
 		m[2] = value.elements;

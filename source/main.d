@@ -15,6 +15,7 @@ import source.scene.model.collision;
 import source.scene.model.model;
 import source.scene.model.box;
 import source.scene.model.sphere;
+import source.scene.model.plane;
 import source.scene.camera;
 
 import source.colour;
@@ -198,10 +199,13 @@ Colour[][] generateImageBuffer(T)( RenderContext!T renderContext )
 	{
 		foreach(x, ref pixel; parallel(row))
 		{
-			pixel = generatePixel!(T,0)(imageWidth - x, imageHeight - y, renderContext);
-			writeln(to!string(100*count++/cast(float)(imageWidth*imageHeight)));
+			pixel = generatePixel!(T,0)(x, y, renderContext);
+
+			//write("\r" ~to!string(100*count++/cast(float)(imageWidth*imageHeight)));
 		}
 	}
+
+	writeln();
 
 	return outputBuffer;
 }
@@ -230,27 +234,16 @@ void WriteToFile(string path, Colour[][] output)
 	f.close();
 }
 
-void main()
+void createSceneOne(T)( ref RenderContext!T renderContext )
 {
-	int multiplier = 10;
-	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
-	//auto renderContext = RenderContext!float(4096,4096);
 	auto identity = Matrix!float.identity;
 
-	
-	auto a = Vector!float(0,-1,0);
-	auto b = Vector!float(0,1,0);
-	auto result = Vector!float.reflect( a, b );
-
-	writeln(result);
-	
-	//big box around everything
-
+	//bounding box
 	identity.translation = Vector!float(0,0,15);
+
 	renderContext.models ~= new Box!float(15,10,30,identity);
 
-	
-	//diagonal spheres
+	//diagonal spheres and boxes
 	identity.translation = Vector!float(2,2,5,1);
 	
 	renderContext.models ~= new Box!float(2,2,2,identity);
@@ -288,6 +281,36 @@ void main()
 	renderContext.pointLights ~= PointLight!float(Vector!float(6, 0, 6));
 	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 9));
 
+}
+
+void createSceneTwo(T)( ref RenderContext!T renderContext )
+{
+	auto transform = Matrix!T.identity;
+
+	transform.translation = Vector!T(0,-1,0);
+	renderContext.models ~= new Plane!T(transform);
+
+	transform.translation = Vector!float( 2, 2, 5, 1 );
+
+	//renderContext.models ~= new Sphere!float(transform);
+	renderContext.models ~= new Box!float(2,2,2,transform);
+
+	
+	//add the lights
+	renderContext.pointLights ~= PointLight!float(Vector!float(-6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 9));
+
+}
+
+void main()
+{
+	int multiplier = 2;
+
+	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
+
+	//createSceneOne(renderContext);
+	createSceneOne(renderContext);
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	
 

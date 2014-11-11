@@ -32,7 +32,10 @@ class Box(T) : Model!T
 		//move the ray into object space
 		auto rOrig = inverseTransform.multVecMatrix(r.origin);
 		auto rDir = inverseTransform.multDirMatrix(r.direction);
+
+		//start ray at minimum point
 		rOrig = rOrig + rDir * r.min;
+
 		Vector!T minN;
 		Vector!T maxN;
 
@@ -109,8 +112,6 @@ class Box(T) : Model!T
 			maxN = Vector!T(0,0,1);
 			tmax = tzmax;
 		}
-		
-		
 
 		//if the minimum point is behind us we dont care,
 		//we are inside the box, use the max intersection
