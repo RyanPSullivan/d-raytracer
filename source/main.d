@@ -292,10 +292,11 @@ void createSceneTwo(T)( ref RenderContext!T renderContext )
 
 	transform.translation = Vector!float( 2, 2, 5, 1 );
 
-	//renderContext.models ~= new Sphere!float(transform);
-	renderContext.models ~= new Box!float(2,2,2,transform);
-
 	
+	auto newMatrix =  Matrix!T.createRotationY(2) * transform;
+
+	renderContext.models ~= new Box!float(2,2,2, newMatrix);
+
 	//add the lights
 	renderContext.pointLights ~= PointLight!float(Vector!float(-6, 0, 6));
 	renderContext.pointLights ~= PointLight!float(Vector!float(6, 0, 6));
@@ -310,7 +311,7 @@ void main()
 	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
 
 	//createSceneOne(renderContext);
-	createSceneOne(renderContext);
+	createSceneTwo(renderContext);
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,0,20,1);	
 

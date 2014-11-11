@@ -1,6 +1,8 @@
 ﻿module source.math.matrix;
 
 import std.stdio;
+import std.math;
+import std.conv;
 
 import source.math.vector;
 
@@ -27,7 +29,6 @@ struct Matrix(T)
 		this.m = m;
 	}
 
-	
 	Vector!T multVecMatrix( Vector!T src) 
 	{
 		T x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0] + m[3][0];
@@ -57,6 +58,11 @@ struct Matrix(T)
 	public T opIndex(size_t i)
 	{
 		return m[i/4][i%4];
+	}
+
+	public void opIndexAssign( T value, size_t i, size_t j)
+	{
+		m[i][j] = value;
 	}
 
 	public static Matrix invert( Matrix m )
@@ -196,9 +202,32 @@ struct Matrix(T)
 
 	}
 
-	public static Matrix createLookAt( Vector!T position,
-	                                  Vector!T target,
-	                                  Vector!T up )
+	public Matrix opBinary(string op)(Matrix rhs) 
+	{
+		static if( op == "*")
+		{
+			auto result = Matrix();
+
+			for(int i = 0; i < 4; i++){ 
+				for(int j = 0; j < 4; j++){ 
+					T count = 0;
+
+					for(int x = 0; x < 4; x++) 
+					{
+						count += this.m[i][x] * rhs.m[x][j]; 
+					}
+
+					result.m[i][j] = count;
+				} 
+			} 
+			
+			return result;
+		}
+	}
+
+	public static Matrix createFromLookAt( Vector!T position,
+	                                      Vector!T target,
+	                                      Vector!T up )
 	{
 		Matrix mat;
 
@@ -210,7 +239,36 @@ struct Matrix(T)
 		return mat;
 	}
 
-	@property static immutable Matrix identity()
+	public pure static Matrix createRotationX( T radians )
+	{
+		return Matrix(1, 			cos(radians), 	-sin(radians), 	0,
+		              0, 			sin(radians), 	cos(radians), 	0,
+		              0, 			0,				1, 				0,
+		              0,			0,				0, 				1);
+	}
+
+	public pure static Matrix createRotationY( T radians )
+	{
+		return Matrix(cos(radians), 0, 	-sin(radians), 	0,
+		              0, 			1, 	0, 				0,
+		              sin(radians), 0,	cos(radians), 	0,
+		              0,			0,	0, 				1);
+	}
+
+	public pure static Matrix createRotationZ( T radians )
+	{
+		return Matrix(cos(radians), -sin(radians), 	0, 0,
+		              sin(radians), cos(radians), 	0, 0,
+		              0, 			0,				1, 0,
+		              0,			0,				0, 1);
+	}
+
+	public static Matrix createYawPitchRoll( T yaw, T pitch, T roll )
+	{
+		return createRotationZ(yaw) * createRotationY(pitch) * createRotationX( roll);
+	}
+
+	@property static pure immutable Matrix identity() nothrow
 	{
 		return Matrix(1, 0, 0, 0,
 		              0, 1, 0, 0,

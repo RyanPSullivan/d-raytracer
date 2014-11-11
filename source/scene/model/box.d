@@ -15,6 +15,7 @@ class Box(T) : Model!T
 {
 	this(T width, T height, T depth, Matrix!T transform)
 	{
+		writeln(to!string(transform));
 		super(transform);
 
 		this.width = width;
