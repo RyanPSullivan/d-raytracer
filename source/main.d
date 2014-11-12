@@ -122,23 +122,24 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 			specularColour = specularColour * light.specularColour;
 		}
 
-		auto shadingColour = collision.model.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
+		auto shadingColour = collision.model.material.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
 
 		
 		if( depth < 2 && 
-		   collision.model.isReflective )
+		   collision.model.material.isReflective )
 		{
+			auto kr = collision.model.material.coefficientOfReflection;
+
 			auto reflectionRay = Ray!T(collision.hit,
 			                           Vector!T.normalize(Vector!T.reflect(ray.direction,collision.normal)),
-			                           0.01,
-			                           1000);
+			                           0.01);
 
-			return  trace(reflectionRay, depth+1,renderContext) * shadingColour;
+			auto reflectionColour = trace(reflectionRay, depth+1,renderContext);
+
+			shadingColour = (shadingColour * (1.0f-kr)) + (reflectionColour * kr);
 		}
-		else
-		{
-			return shadingColour;
-		}
+
+		return shadingColour;
 	}
 }
 
@@ -153,14 +154,13 @@ Colour generatePixel(T, float dof)( ulong x, ulong y, RenderContext!T renderCont
 	}
 	else
 	{
-		float pixelWidth = 1.0f / renderContext.width;
-		float pixelHeight = 1.0f / renderContext.height;
+		float pixelWidth = (renderContext.camera.angle * renderContext.imageAspectRatio) / renderContext.width;
+		float pixelHeight = renderContext.camera.angle / renderContext.height;
 
-		int focusPoint = 2;
 		Colour result = Colour(0,0,0,0);
 
 		//Now here I compute point P in the scene where I want to focus my scene
-		auto P = originalRay.origin + focusPoint * originalRay.direction;
+		auto P = originalRay.origin + dof * originalRay.direction;
 
 		auto samples = 16;
 
@@ -170,9 +170,9 @@ Colour generatePixel(T, float dof)( ulong x, ulong y, RenderContext!T renderCont
 			float rw  = uniform(-1.0f,1.0f);
 			float rh  = uniform(-1.0f,1.0f);
 			
-			float dx =  ( (rw) * 3 * pixelWidth) ;
-			float dy =  ( (rh) * 3 * pixelHeight);
-			
+			float dx =  ( rw * 0.3);
+			float dy =  ( rh * 0.3);
+
 			auto origin = Vector!T(originalRay.origin.x + dx, originalRay.origin.y + dy, originalRay.origin.z, 1);
 			
 			auto dir = Vector!T.normalize(P - origin);
@@ -199,9 +199,9 @@ Colour[][] generateImageBuffer(T)( RenderContext!T renderContext )
 	{
 		foreach(x, ref pixel; parallel(row))
 		{
-			pixel = generatePixel!(T,0)(x, y, renderContext);
+			pixel = generatePixel!(T,33)(x, y, renderContext);
 
-			//write("\r" ~to!string(100*count++/cast(float)(imageWidth*imageHeight)));
+			write("\r" ~to!string(cast(int)(100*count++/cast(float)(imageWidth*imageHeight))));
 		}
 	}
 
@@ -292,7 +292,6 @@ void createSceneTwo(T)( ref RenderContext!T renderContext )
 
 	transform.translation = Vector!float( 2, 2, 5, 1 );
 
-	
 	auto newMatrix =  Matrix!T.createRotationY(2) * transform;
 
 	renderContext.models ~= new Box!float(2,2,2, newMatrix);
@@ -304,16 +303,44 @@ void createSceneTwo(T)( ref RenderContext!T renderContext )
 
 }
 
+
+void createSceneThree(T)( ref RenderContext!T renderContext )
+{
+	auto identity = Matrix!T.identity;
+	
+	//bounding box
+	identity.translation = Vector!T(0,0,0);
+	
+	renderContext.models ~= new Box!T(80,40,80,identity, Material(Colour(0.1f,0.1f,0.1f, 0), 0));
+
+	//spheres
+
+	identity.translation = Vector!T(5,0,-40);
+
+	renderContext.models ~= new Sphere!T(identity, 20, Material(Colour.red, 0.8));
+
+	identity.translation = Vector!T(-2,-18,7);
+	
+	renderContext.models ~= new Sphere!T(identity, 2, Material(Colour.green, 0));
+	
+	//add the lights
+	renderContext.pointLights ~= PointLight!float(Vector!float(-6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(6, 0, 6));
+	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 9));	
+}
+
 void main()
 {
-	int multiplier = 2;
+	int multiplier = 10;
 
 	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
 
 	//createSceneOne(renderContext);
-	createSceneTwo(renderContext);
+	//createSceneTwo(renderContext);
+	createSceneThree(renderContext);
+
 	auto cameraTransform = Matrix!float.identity;
-	cameraTransform.translation = Vector!float(0,0,20,1);	
+	cameraTransform.translation = Vector!float(0,-10,40,1);	
 
 	renderContext.camera = Camera!float(cameraTransform,45);
 

@@ -83,6 +83,13 @@ public:
 		return inward - 2 * Vector.dot(inward,normal) * normal;
 
 	}
+
+	unittest
+	{
+		assert( Vector!float.reflect( Vector!float(0,-1,0), Vector!float(0,1,0) ) == Vector!float(0,1,0));
+		assert( Vector!float.reflect( Vector!float(1,0,-1), Vector!float(0,1,0) ) == Vector!float(1,0,1));
+	}
+
 	static Vector cross( Vector lhs, Vector rhs )
 	{
 		return Vector(lhs.y * rhs.z - lhs.z * rhs.y,
@@ -115,7 +122,4 @@ unittest
 	//test multiplication
 	assert(  Vector!float(1,2,3) * 2 == Vector!float(2,4,6) );
 
-	//test reflection
-	assert( Vector!float.reflect( Vector!float(0,-1,0), Vector!float(0,1,0) ) == Vector!float(0,1,0));
-	assert( Vector!float.reflect( Vector!float(1,0,-1), Vector!float(0,1,0) ) == Vector!float(1,0,1));
 }

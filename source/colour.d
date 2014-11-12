@@ -17,10 +17,10 @@ struct Colour
 		this.elements = rgba;
 	}
 
-	static immutable Colour White = Colour(1,1,1,0);
-	static immutable Colour Black = Colour( 0, 0, 0, 0 );
-	static immutable Colour Red = Colour( 1, 0, 0, 0 );
-
+	static immutable Colour white = Colour(1,1,1,0);
+	static immutable Colour black = Colour( 0, 0, 0, 0 );
+	static immutable Colour red = Colour( 1, 0, 0, 0 );
+	static immutable Colour green = Colour( 0, 1, 0, 0 );
 	
 	Colour opBinary( string op )( Colour rhs )
 		if( op == "*")
@@ -30,23 +30,16 @@ struct Colour
 
 	Colour opBinary(string op)(float scalar) 
 	{
-		if( op == "*")
-		{
-			return Colour( r * scalar, g * scalar, b * scalar, a * scalar );
-		}
-		else if( op == "/")
-		{
-			return Colour( r / scalar, g / scalar, b / scalar, a / scalar );
-		}
+		mixin("return Colour( r " ~ op ~ " scalar, g " ~ op ~ " scalar, b " ~ op ~ " scalar, a " ~ op ~ " scalar );");
 	}
 
 	
-	Colour opBinaryRight( string op)(float scalar ) if( op == "*")
+	Colour opBinaryRight( string op )( float scalar )
 	{
-		return this * scalar;
+		mixin("return this " ~ op ~ "scalar;");
 	}
-
-	Colour opBinaryRight( string op)( Colour rhs ) if( op == "+")
+	
+	Colour opBinaryRight( string op )( Colour rhs ) if( op == "+")
 	{
 		return Colour( r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 	}

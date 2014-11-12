@@ -6,9 +6,9 @@ import source.colour;
 struct PointLight(T)
 {
 	this(Vector!T position, 
-	     Colour diffuseColour = Colour.White, 
+	     Colour diffuseColour = Colour.white, 
 	     T diffusePower = 1, 
-	     Colour specularColour = Colour.White, 
+	     Colour specularColour = Colour.white, 
 	     T specularPower = 1)
 	{
 		this.position = position;

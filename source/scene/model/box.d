@@ -13,16 +13,18 @@ import std.math;
 
 class Box(T) : Model!T
 {
-	this(T width, T height, T depth, Matrix!T transform)
+	this(T width, 
+	     T height, 
+	     T depth, 
+	     Matrix!T transform,
+	     Material material)
 	{
 		writeln(to!string(transform));
-		super(transform);
+		super(transform, material);
 
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
-
-		reflective = false;
 	}
 
 	
@@ -67,10 +69,8 @@ class Box(T) : Model!T
 		
 		if ((tmin > tymax) || (tymin > tmax))
 		{
-
 			return false;
 		}
-		
 
 		minN = Vector!T( 1,0,0 );
 		maxN = Vector!T( 1,0,0 );
@@ -80,14 +80,12 @@ class Box(T) : Model!T
 			minN = Vector!T(0,1,0);
 			tmin = tymin;
 		}
-		
 
 		if (tymax < tmax)
 		{
 			maxN = Vector!T(0,1,0);
 			tmax = tymax;
 		}
-		
 		
 		auto tzmin = (minZ - rOrig.z) / rDir.z;
 		auto tzmax = (maxZ - rOrig.z) / rDir.z;
@@ -133,8 +131,6 @@ class Box(T) : Model!T
 		collision.distance = tmin;
 		collision.hit = r.origin +  tmin * r.direction;
 		collision.normal = transformation.multDirMatrix(minN);
-
-		
 
 		return true;
 	}

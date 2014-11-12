@@ -11,13 +11,12 @@ import source.math.ray;
 
 import source.scene.model.collision;
 
+
 class Plane(T) : Model!T 
 {
 	this( Matrix!T transform )
 	{
-		super(transform);
-
-		reflective = true;
+		super(transform, Material(Colour.red, 0.9));
 	}
 
 	override bool intersects(Ray!T r, ref Collision!T collision) 
@@ -47,7 +46,6 @@ class Plane(T) : Model!T
 		}
 		
 		float d = numerator/denominator;
-		//writeln(to!string(d));
 
 		collision.model = this;
 		collision.distance = d;
