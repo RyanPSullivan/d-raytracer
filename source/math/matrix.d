@@ -268,7 +268,7 @@ struct Matrix(T)
 		return createRotationZ(yaw) * createRotationY(pitch) * createRotationX( roll);
 	}
 
-	@property static pure immutable Matrix identity() nothrow
+	@property static Matrix identity() nothrow
 	{
 		return Matrix(1, 0, 0, 0,
 		              0, 1, 0, 0,

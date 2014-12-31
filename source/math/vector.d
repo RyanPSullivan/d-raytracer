@@ -109,7 +109,7 @@ public:
 	@property T w() { return elements[3]; }
 	@property T w( T value ) { return elements[3] = value; }
 
-	static @property immutable pure Vector!T up() { return Vector!T(0,1,0); }
+	static @property  Vector!T up() { return Vector!T(0,1,0); }
 
 	T[4] elements;
 }
