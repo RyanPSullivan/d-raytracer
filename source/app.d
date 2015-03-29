@@ -331,7 +331,7 @@ void createSceneThree(T)( ref RenderContext!T renderContext )
 
 void main()
 {
-	int multiplier = 10;
+	int multiplier = 2;
 
 	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);
 
@@ -349,6 +349,3 @@ void main()
 	WriteToFile("output.ppm", imageBuffer);
 	writeln("done");
 }
-
-
-

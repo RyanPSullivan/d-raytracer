@@ -67,7 +67,7 @@ struct Matrix(T)
 
 	public static Matrix invert( Matrix m )
 	{
-		T inv[16]; 
+		T[16] inv; 
 		T det;
 		int i;
 		
@@ -292,7 +292,6 @@ struct Matrix(T)
 	{
 		m[1] = value.elements;
 	}
-
 	
 	@property void forward( Vector!T value )
 	{

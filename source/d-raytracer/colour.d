@@ -1,6 +1,6 @@
 ﻿module source.colour;
 
-import core.simd;
+//import core.simd;
 
 struct Colour
 {
@@ -12,7 +12,7 @@ struct Colour
 		this.a = alpha;
 	}
 
-	this( float4 rgba )
+	this( float[4] rgba )
 	{
 		this.elements = rgba;
 	}
@@ -44,18 +44,18 @@ struct Colour
 		return Colour( r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 	}
 
-	@property  const float r() { return elements.array[0]; }
-	@property float r( float value ) { return elements.array[0] = value; }
+	@property  const float r() { return elements[0]; }
+	@property float r( float value ) { return elements[0] = value; }
 	
-	@property const float g() { return elements.array[1]; }
-	@property float g( float value ) { return elements.array[1] = value; }
+	@property const float g() { return elements[1]; }
+	@property float g( float value ) { return elements[1] = value; }
 	
-	@property const float b() { return elements.array[2]; }
-	@property float b( float value ) { return elements.array[2] = value; }
+	@property const float b() { return elements[2]; }
+	@property float b( float value ) { return elements[2] = value; }
 	
-	@property const float a() { return elements.array[3]; }
-	@property float a( float value ) { return elements.array[3] = value; }
+	@property const float a() { return elements[3]; }
+	@property float a( float value ) { return elements[3] = value; }
 	
 
-	private float4 elements;
+	private float[4] elements;
 }
