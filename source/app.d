@@ -341,6 +341,7 @@ void loadScene( string filename )
   import std.file;
   import std.utf;
   import std.string;
+  import std.json;
   
   auto result = cast( string ) read( filename );
 
@@ -357,7 +358,26 @@ void loadScene( string filename )
 	output ~= line ~ "\n";
     }
   }
-  
+
+  auto json =  parseJSON( output );
+
+  // TODO:
+  // - support ambient light
+
+  foreach( camera; json["cameras"] )
+  {
+    Camera( Matrix.createFromLookAt( 
+				   camera["eye"],
+				   camera["look"],
+				   camera["up"]),
+	    camera["focal_length"],
+	    camera["apature"] );
+  }
+
+  foreach( light; json["lights"] )
+    {
+      
+    }
   writeln( output );
 }
 
