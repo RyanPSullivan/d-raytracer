@@ -21,6 +21,8 @@ import source.scene.camera;
 import source.colour;
 import source.math.ray;
 
+
+
 Ray!T calculateRayForPixel(T)( ulong x, ulong y, RenderContext!T renderContext)
 {
 	Matrix!float camToWorld = renderContext.camera.transform;
@@ -329,8 +331,42 @@ void createSceneThree(T)( ref RenderContext!T renderContext )
 	renderContext.pointLights ~= PointLight!float(Vector!float(0, 0, 9));	
 }
 
+void loadScene( string filename )()
+{
+  loadScene( filename );
+}
+
+void loadScene( string filename )
+{
+  import std.file;
+  import std.utf;
+  import std.string;
+  
+  auto result = cast( string ) read( filename );
+
+  validate( result );
+
+  //  auto lines = result.splitLines();
+
+  string output;
+
+  foreach( line; splitLines(result)) 
+  {
+    if( !stripLeft(line).startsWith( "//") )
+    {
+	output ~= line ~ "\n";
+    }
+  }
+  
+  writeln( output );
+}
+
 void main()
 {
+       loadScene!"public/scene1.scene"();
+
+       //loadScene("public/scene1.scene");
+
 	int multiplier = 2;
 
 	auto renderContext = RenderContext!float(192*multiplier,108*multiplier);

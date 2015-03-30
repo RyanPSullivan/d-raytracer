@@ -1,0 +1,182 @@
+//============================================================================
+// SCENE PROPERTIES FILE
+//============================================================================
+{
+	//------------------------------------------------------------------------
+	// Scene properties
+	//------------------------------------------------------------------------
+	// Scene name.
+	"name"			: "spheres_refraction",
+
+	// Scene ambient light intensity.
+	"ambient_light" : [ 0.4, 0.4, 0.4 ],
+	
+	// Should we build a bounding hierarchy?
+	"optimise"		: true,
+
+	//------------------------------------------------------------------------
+	// List of cameras.
+	//------------------------------------------------------------------------
+	"cameras" :
+	[
+		{
+			"eye"			: [ 0.0, 0.0, 500.0 ],
+			"up"			: [ 0.0, 1.0, 0.0 ],
+			"look"			: [ 0.0, 0.0, 1.0 ],
+			"focal_length"	: 1000.0,
+			"aperture"		: 0.0
+		}
+	],	
+	
+	//------------------------------------------------------------------------
+    // List of lights.
+	//------------------------------------------------------------------------
+	// types: "point", "area"
+	"lights" :
+	[
+		{
+			"type"			: "area",
+			"intensity"		: [ 0.8, 0.8, 0.8 ],
+			"falloff"		: 20.0,
+			"position"		: [ 100.0, 100.0, 100.0 ],
+			"direction"		: [ 100.0, 100.0, 200.0 ],
+			"radius"		: 10.0,
+			"samples"		: 16
+		}
+	],	
+	
+	//------------------------------------------------------------------------
+	// List of materials.
+	//------------------------------------------------------------------------
+	"materials" :
+	[
+		{
+			"ambient"		: [ 0.4, 0.1, 0.1 ],
+			"diffuse"		: [ 1.0, 0.0, 0.0 ],
+			"specular"		: [ 1.0, 1.0, 1.0 ],
+			"reflectivity"	: [ 0.8, 0.8, 0.8 ],
+			"distribution"	: 50.0
+		},
+		{
+			"ambient"		: [ 0.1, 0.1, 0.3 ],
+			"diffuse"		: [ 0.4, 0.4, 1.0 ],
+			"specular"		: [ 0.8, 0.8, 0.8 ],
+			"reflectivity"	: [ 1.0, 1.0, 1.0 ],
+			"distribution"	: 50.0
+		},
+		{
+			"ambient"		: [ 0.1, 0.1, 0.1 ],
+			"diffuse"		: [ 0.2, 0.2, 0.2 ],
+			"specular"		: [ 0.7, 0.7, 0.7 ],
+			"distribution"	: 50.0,
+			"refractivity"	: 1.33
+		}
+	],	
+
+	//------------------------------------------------------------------------
+	// List of primitives.
+	//------------------------------------------------------------------------
+	// types: "sphere", "plane", "mesh"
+	"primitives" :
+	[
+		{
+			"type"			: "plane",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"normal"	: [ 0.0, 0.0, 0.1 ],
+				"point"		: [ 0.0, 0.0, -150.0 ]
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 2,
+			"properties"	:
+			{
+				"origin"	: [ -7.5, -5.1, -25.0 ],
+				"radius"	: 40.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ 76.5, -11.9, -60.0 ],
+				"radius"	: 20.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ 68.0, 73.1, -100.0 ],
+				"radius"	: 17.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ -34.0, 47.6, -50.0 ],
+				"radius"	: 20.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ -42.5, -11.9, -65.0 ],
+				"radius"	: 27.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ -59.5, -62.9, -80.0 ],
+				"radius"	: 22.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ -8.5, -54.4, -60.0 ],
+				"radius"	: 22.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ 17.0, 73.1, -80.0 ],
+				"radius"	: 22.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ 51.0, -11.9, -80.0 ],
+				"radius"	: 10.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 0,
+			"properties"	:
+			{
+				"origin"	: [ -68.0, 81.6, -110.0 ],
+				"radius"	: 18.0
+			}
+		}
+	]
+}

@@ -1,0 +1,308 @@
+//============================================================================
+// SCENE PROPERTIES FILE
+//============================================================================
+{
+	//------------------------------------------------------------------------
+	// Scene properties
+	//------------------------------------------------------------------------
+	// Scene name.
+	"name"			: "bvh_far",
+
+	// Scene ambient light intensity.
+	"ambient_light" : [ 0.4, 0.4, 0.4 ],
+	
+	// Should we build a bounding hierarchy?
+	"optimise"		: true,
+
+	//------------------------------------------------------------------------
+	// List of cameras.
+	//------------------------------------------------------------------------
+	"cameras" :
+	[
+		{
+			"eye"			: [ -100.0, 100.0, -30.0 ],
+			"up"			: [ 0.0, -1.0, 0.0 ],
+			"look"			: [ 0.0, 0.0, 0.0 ],
+			"focal_length"	: 100.0,
+			"aperture"		: 0.0
+		}
+	],	
+	
+	//------------------------------------------------------------------------
+    // List of lights.
+	//------------------------------------------------------------------------
+	// types: "point", "area"
+	"lights" :
+	[
+		{
+			"type"			: "area",
+			"intensity"		: [ 0.7, 0.7, 0.7 ],
+			"falloff"		: 10.0,
+			"position"		: [ -30.0, 30.0, -40.0 ],
+			"radius"		: 3.0,
+			"samples"		: 32
+		}
+	],	
+	
+	//------------------------------------------------------------------------
+	// List of materials.
+	//------------------------------------------------------------------------
+	"materials" :
+	[
+		{
+			"ambient"		: [ 0.3, 0.4, 0.3 ],
+			"diffuse"		: [ 0.3, 0.3, 0.3 ],
+			"specular"		: [ 0.2, 0.2, 0.2 ],
+			"distribution"	: 50.0
+		},
+		{
+			"ambient"		: [ 0.1, 0.1, 0.1 ],
+			"diffuse"		: [ 0.1, 0.1, 0.8 ],
+			"specular"		: [ 0.7, 0.7, 0.7 ],
+			"reflectivity"	: [ 0.8, 0.8, 0.8 ],
+			"distribution"	: 20.0
+		}
+	],	
+
+	//------------------------------------------------------------------------
+	// List of primitives.
+	//------------------------------------------------------------------------
+	// types: "sphere", "plane", "mesh", "tri"
+	"primitives" :
+	[
+		{
+			"type"			: "plane",
+			"material_id"	: 0,
+			"properties" :
+			{
+				"normal"	: [ 0.0, 1.0, 0.0 ],
+				"point"		: [ 0.0, 0.0, 0.0 ]
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 0.0, 5.0, 0.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 12.0, 5.0, 0.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 24.0, 5.0, 0.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -12.0, 5.0, 0.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -24.0, 5.0, 0.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 0.0, 5.0, 12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 12.0, 5.0, 12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 24.0, 5.0, 12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -12.0, 5.0, 12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -24.0, 5.0, 12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 0.0, 5.0, 24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 12.0, 5.0, 24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 24.0, 5.0, 24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -12.0, 5.0, 24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -24.0, 5.0, 24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 0.0, 5.0, -12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 12.0, 5.0, -12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 24.0, 5.0, -12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -12.0, 5.0, -12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -24.0, 5.0, -12.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 0.0, 5.0, -24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 12.0, 5.0, -24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ 24.0, 5.0, -24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -12.0, 5.0, -24.0 ],
+				"radius"	: 5.0
+			}
+		},
+		{
+			"type"			: "sphere",
+			"material_id"	: 1,
+			"properties" :
+			{
+				"origin"	: [ -24.0, 5.0, -24.0 ],
+				"radius"	: 5.0
+			}
+		}
+	]
+}
