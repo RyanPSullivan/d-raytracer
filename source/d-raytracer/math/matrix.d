@@ -29,6 +29,14 @@ struct Matrix(T)
 		this.m = m;
 	}
 
+  this( Vector!T right, Vector!T up, Vector!T forward, Vector!T position )
+  {
+    this.right(right);
+    this.up(up);
+    this.forward(forward);
+    this.translation(position);
+  }
+
 	Vector!T multVecMatrix( Vector!T src) 
 	{
 		T x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0] + m[3][0];

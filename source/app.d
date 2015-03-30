@@ -364,19 +364,48 @@ void loadScene( string filename )
   // TODO:
   // - support ambient light
 
-  foreach( camera; json["cameras"] )
+  pure Vector!T parseVector(T)( JSONValue value )
+    {
+      static if( isFloatingPoint(T) )
+	{
+	  return Vector!T( value[0].floating, value[1].floating, value[2].floating );
+	}
+    }
+  foreach( camera; json["cameras"].array() )
   {
-    Camera( Matrix.createFromLookAt( 
-				   camera["eye"],
-				   camera["look"],
-				   camera["up"]),
-	    camera["focal_length"],
+    auto eye = camera["eye"];
+    auto look = camera["look"];
+    auto up = camera["up"];
+    
+    Camera( Matrix!float.createFromLookAt( parseVector!float( camera["eye"] ),
+					   parseVector!float( camera["look"] ),
+					   parseVector!float( camera["up"] ) ),
+				       	    camera["focal_length"],
 	    camera["apature"] );
   }
 
   foreach( light; json["lights"] )
     {
-      
+      //TODO: Support light parsing 
+    }
+
+  Model[] models;
+  foreach( primitive; json["primitives"] )
+    {
+      Model  model;
+      switch( primitive["type"] )
+	{
+	case "plane":
+	  model = Plane( primitive["normal"], primitive["point"] );
+	  break;
+	case "sphere":
+	  model = Sphere( primitive["origin"], primitive["radius"] );
+	  break;
+	  
+	  
+	}
+
+      models ~= model;
     }
   writeln( output );
 }

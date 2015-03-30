@@ -19,6 +19,14 @@ class Plane(T) : Model!T
 		super(transform, Material(Colour.red, 0.9));
 	}
 
+	this( Vector!T normal, Vector!T point )
+	  {
+	    this( Matrix!T( Vector!T(),
+			     normal,
+			     Vector!T(),
+			     point ) );
+	  }
+
 	override bool intersects(Ray!T r, ref Collision!T collision) 
 	{
 		auto inverseTransform = Matrix!T.invert(this.transformation);
