@@ -10,22 +10,27 @@ import source.math.matrix;
  **/
 struct Camera(T)
 {
-	this(Matrix!T worldTransform = Matrix!T.identity,
-	     float fov = 90,
-	     float nearClippingPane = 0.1,
-	     float farClippingPlane = 1000 )
+  this( Matrix!T worldTransform = Matrix!T.identity,
+	T focalLength = 0,
+	T aperture = 0,
+	T fov = 90,
+	T farClippingPlane = 1000,
+	T nearClippingPlane = 0.1 )
 	{
-
-		this.nearClippingPlane = nearClippingPane;
+		this.nearClippingPlane = nearClippingPlane;
 		this.farClippingPlane = farClippingPlane;
 		this.fov = fov;
 		this.transform = worldTransform;
 		this.angle = atan((fov * 0.5) * 0.0174532925);
+		this.focalLength = focalLength;
+		this.aperture = aperture;
 	}
 
 	public  T nearClippingPlane, farClippingPlane;
 	public  T fov;
 	public  T angle;
+  public T focalLength;
+  public T aperture;
 	public  Matrix!T transform;
 }
 

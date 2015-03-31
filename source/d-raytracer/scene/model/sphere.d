@@ -18,7 +18,7 @@ class Sphere(T) : Model!T
   this( Vector!T origin, float radius )
     {
       auto transform = Matrix!T.identity;
-      transform.position = origin;
+      transform.translation = origin;
 
       this( transform, radius, Material( Colour.green, 0.9 ) );
     }

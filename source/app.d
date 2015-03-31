@@ -364,42 +364,62 @@ void loadScene( string filename )
   // TODO:
   // - support ambient light
 
-  pure Vector!T parseVector(T)( JSONValue value )
+  Vector!T parseVector(T)( JSONValue value )
     {
-      static if( isFloatingPoint(T) )
+      import std.traits;
+      static if( is(T == float) )
 	{
 	  return Vector!T( value[0].floating, value[1].floating, value[2].floating );
 	}
     }
+
+  Camera!float[] cameras;
   foreach( camera; json["cameras"].array() )
   {
+    
     auto eye = camera["eye"];
     auto look = camera["look"];
     auto up = camera["up"];
     
-    Camera( Matrix!float.createFromLookAt( parseVector!float( camera["eye"] ),
+    cameras ~= Camera!float( Matrix!float.createFromLookAt( parseVector!float( camera["eye"] ),
 					   parseVector!float( camera["look"] ),
 					   parseVector!float( camera["up"] ) ),
-				       	    camera["focal_length"],
-	    camera["apature"] );
+			     camera["focal_length"].floating,
+			     camera["aperture"].floating );
   }
 
-  foreach( light; json["lights"] )
+  Material[] materials;
+
+  foreach( material; json["materials"].array() )
+    {
+      materials ~= Material( Colour( parseVector!float( material["ambient"] ),
+				     parseVector!float( material["diffuse"] ),
+				     parseVector!float( material["specular"] ),
+				     parseVector!float( material["reflectivity"] ),
+				     material["refractivity"].floating );
+    }
+	
+  foreach( light; json["lights"].array() )
     {
       //TODO: Support light parsing 
     }
 
-  Model[] models;
-  foreach( primitive; json["primitives"] )
+  Model!float[] models;
+  foreach( primitive; json["primitives"].array() )
     {
-      Model  model;
-      switch( primitive["type"] )
+      Model!float  model;
+
+      auto properties = primitive["properties"];
+      
+      switch( primitive["type"].str )
 	{
 	case "plane":
-	  model = Plane( primitive["normal"], primitive["point"] );
+	  model = new Plane!float( parseVector!float(properties["normal"]),
+			 parseVector!float(properties["point"]) );
 	  break;
 	case "sphere":
-	  model = Sphere( primitive["origin"], primitive["radius"] );
+	  model = new Sphere!float( parseVector!float(properties["origin"]),
+			  properties["radius"].floating );
 	  break;
 	  
 	  
