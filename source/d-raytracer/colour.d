@@ -4,7 +4,7 @@
 
 struct Colour
 {
-	this( float red, float green, float blue, float alpha ) 
+	this( float red, float green, float blue, float alpha = 1 ) 
 	{
 		this.r = red;
 		this.g = green;

@@ -81,11 +81,10 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 		//return Colour.WHITE;
 		//return Colour((collision.normal.x + 1)/2, (collision.normal.y + 1)/2, (collision.normal.z + 1)/2, 0);
 		
-		Colour lambertColour = Colour( 1, 1, 1, 0 );
-		Colour specularColour = Colour( 1, 1, 1, 0 );
 
 		T lambertIntensity = 0;
 		T specularIntensity = 0;
+		Colour lightColour = Colour.white;
 
 		foreach(light; renderContext.pointLights)
 		{
@@ -109,8 +108,7 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 			if( lightDot < 0 ) lightDot = 0;
 
 			lambertIntensity += lightDot * light.diffusePower;
-			lambertColour = lambertColour * light.diffuseColour;
-
+			
 			//specular calculation
 			auto camToLight = Vector!T.normalize(directionToLight + directionToCamera);
 			auto cameraDot = Vector!T.dot(collision.normal, camToLight);
@@ -121,16 +119,18 @@ Colour trace(T)(Ray!T ray, int depth, RenderContext!T renderContext)
 
 			specularIntensity += intensity * light.specularPower; 
 
-			specularColour = specularColour * light.specularColour;
+			lightColour = lightColour + light.colour;
 		}
 
-		auto shadingColour = collision.model.material.colour * ((Colour(1,1,1,0) * 0f) + (lambertColour * lambertIntensity) + (specularColour * specularIntensity));
+		auto shadingColour =(collision.model.material.ambient * lightColour * ((Colour(1,1,1,0) * 0f)) +
+				    (collision.model.material.diffuse * lambertIntensity) +
+				    (collision.model.material.specular* specularIntensity));
 
 		
 		if( depth < 2 && 
 		   collision.model.material.isReflective )
 		{
-			auto kr = collision.model.material.coefficientOfReflection;
+			auto kr = collision.model.material.reflectivity;
 
 			auto reflectionRay = Ray!T(collision.hit,
 			                           Vector!T.normalize(Vector!T.reflect(ray.direction,collision.normal)),
@@ -364,12 +364,12 @@ void loadScene( string filename )
   // TODO:
   // - support ambient light
 
-  T!U parseVector(T,U)( JSONValue value )
+  T parseVector(T,U)( JSONValue value )
     {
       import std.traits;
       static if( is(U == float) )
 	{
-	  return T!U( value[0].floating, value[1].floating, value[2].floating );
+	  return T( to!U(value[0].floating), to!U(value[1].floating), to!U(value[2].floating) );
 	}
     }
 
@@ -381,9 +381,9 @@ void loadScene( string filename )
     auto look = camera["look"];
     auto up = camera["up"];
     
-    cameras ~= Camera!float( Matrix!float.createFromLookAt( parseVector!(Vector,float)( camera["eye"] ),
-							    parseVector!(Vector,float)( camera["look"] ),
-							    parseVector!(Vector,float)( camera["up"] ) ),
+    cameras ~= Camera!float( Matrix!float.createFromLookAt( parseVector!(Vector!float,float)( camera["eye"] ),
+							    parseVector!(Vector!float,float)( camera["look"] ),
+							    parseVector!(Vector!float,float)( camera["up"] ) ),
 			     camera["focal_length"].floating,
 			     camera["aperture"].floating );
   }
@@ -416,12 +416,12 @@ void loadScene( string filename )
       switch( primitive["type"].str )
 	{
 	case "plane":
-	  model = new Plane!float( parseVector!(Vector,float)(properties["normal"]),
-				   parseVector!(Vector,float)(properties["point"]),
+	  model = new Plane!float( parseVector!(Vector!float,float)(properties["normal"]),
+				   parseVector!(Vector!float,float)(properties["point"]),
 				   material );
 	  break;
 	case "sphere":
-	  model = new Sphere!float( parseVector!(Vector,float)(properties["origin"]),
+	  model = new Sphere!float( parseVector!(Vector!float,float)(properties["origin"]),
 				    properties["radius"].floating,
 				    material );
 	  break;
@@ -446,7 +446,7 @@ void main()
 
 	//createSceneOne(renderContext);
 	//createSceneTwo(renderContext);
-	createSceneThree(renderContext);
+	//createSceneThree(renderContext);
 
 	auto cameraTransform = Matrix!float.identity;
 	cameraTransform.translation = Vector!float(0,-10,40,1);	

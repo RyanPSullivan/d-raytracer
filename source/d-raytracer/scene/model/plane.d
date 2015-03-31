@@ -13,12 +13,12 @@ import source.scene.model.collision;
 
 class Plane(T) : Model!T 
 {
-  this( Matrix!T transform, Material!T material )
+  this( Matrix!T transform, Material material )
 	{
 		super(transform, material);
 	}
 
-	this( Vector!T normal, Vector!T point, Material!T material )
+	this( Vector!T normal, Vector!T point, Material material )
 	  {
 	    this( Matrix!T( Vector!T(),
 			     normal,
