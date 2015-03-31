@@ -364,12 +364,12 @@ void loadScene( string filename )
   // TODO:
   // - support ambient light
 
-  Vector!T parseVector(T)( JSONValue value )
+  T!U parseVector(T,U)( JSONValue value )
     {
       import std.traits;
-      static if( is(T == float) )
+      static if( is(U == float) )
 	{
-	  return Vector!T( value[0].floating, value[1].floating, value[2].floating );
+	  return T!U( value[0].floating, value[1].floating, value[2].floating );
 	}
     }
 
@@ -381,9 +381,9 @@ void loadScene( string filename )
     auto look = camera["look"];
     auto up = camera["up"];
     
-    cameras ~= Camera!float( Matrix!float.createFromLookAt( parseVector!float( camera["eye"] ),
-					   parseVector!float( camera["look"] ),
-					   parseVector!float( camera["up"] ) ),
+    cameras ~= Camera!float( Matrix!float.createFromLookAt( parseVector!(Vector,float)( camera["eye"] ),
+							    parseVector!(Vector,float)( camera["look"] ),
+							    parseVector!(Vector,float)( camera["up"] ) ),
 			     camera["focal_length"].floating,
 			     camera["aperture"].floating );
   }
@@ -392,11 +392,11 @@ void loadScene( string filename )
 
   foreach( material; json["materials"].array() )
     {
-      materials ~= Material( Colour( parseVector!float( material["ambient"] ),
-				     parseVector!float( material["diffuse"] ),
-				     parseVector!float( material["specular"] ),
-				     parseVector!float( material["reflectivity"] ),
-				     material["refractivity"].floating );
+      materials ~= Material( parseVector!(Colour,float)( material["ambient"] ),
+                             parseVector!(Colour,float)( material["diffuse"] ),
+			     parseVector!(Colour,float)( material["specular"] ),
+			     parseVector!(Colour,float)( material["reflectivity"] ),
+			     material["refractivity"].floating );
     }
 	
   foreach( light; json["lights"].array() )
@@ -408,18 +408,22 @@ void loadScene( string filename )
   foreach( primitive; json["primitives"].array() )
     {
       Model!float  model;
-
-      auto properties = primitive["properties"];
       
+      auto materialID = primitive["material_id"].integer;
+      auto properties = primitive["properties"];
+      auto material = materials[materialID];
+
       switch( primitive["type"].str )
 	{
 	case "plane":
-	  model = new Plane!float( parseVector!float(properties["normal"]),
-			 parseVector!float(properties["point"]) );
+	  model = new Plane!float( parseVector!(Vector,float)(properties["normal"]),
+				   parseVector!(Vector,float)(properties["point"]),
+				   material );
 	  break;
 	case "sphere":
-	  model = new Sphere!float( parseVector!float(properties["origin"]),
-			  properties["radius"].floating );
+	  model = new Sphere!float( parseVector!(Vector,float)(properties["origin"]),
+				    properties["radius"].floating,
+				    material );
 	  break;
 	  
 	  

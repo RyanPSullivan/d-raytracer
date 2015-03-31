@@ -15,12 +15,12 @@ import std.conv;
 
 class Sphere(T) : Model!T
 {
-  this( Vector!T origin, float radius )
+  this( Vector!T origin, float radius, Material material )
     {
       auto transform = Matrix!T.identity;
       transform.translation = origin;
 
-      this( transform, radius, Material( Colour.green, 0.9 ) );
+      this( transform, radius, material );
     }
 	this(Matrix!T transform, 
 	     float radius,

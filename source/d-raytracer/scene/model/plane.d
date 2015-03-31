@@ -1,5 +1,4 @@
 ﻿module source.scene.model.plane;
-
 import std.stdio;
 import std.conv;
 
@@ -14,17 +13,18 @@ import source.scene.model.collision;
 
 class Plane(T) : Model!T 
 {
-	this( Matrix!T transform )
+  this( Matrix!T transform, Material!T material )
 	{
-		super(transform, Material(Colour.red, 0.9));
+		super(transform, material);
 	}
 
-	this( Vector!T normal, Vector!T point )
+	this( Vector!T normal, Vector!T point, Material!T material )
 	  {
 	    this( Matrix!T( Vector!T(),
 			     normal,
 			     Vector!T(),
-			     point ) );
+			    point ),
+		  material );
 	  }
 
 	override bool intersects(Ray!T r, ref Collision!T collision) 
