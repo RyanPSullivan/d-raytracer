@@ -1,7 +1,7 @@
-﻿module source.scene.model.collision;
+﻿module scene.model.collision;
 
-import source.scene.model.model;
-import source.math.vector;
+import scene.model.model;
+import math.vector;
 
 struct Collision(T)
 {

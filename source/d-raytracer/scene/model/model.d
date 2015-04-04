@@ -1,26 +1,25 @@
-﻿module source.scene.model.model;
+﻿module scene.model.model;
 
+public import scene.model.material;
 
-import source.math.ray;
-import source.math.matrix;
-public import source.scene.model.material;
-import source.scene.model.collision;
+import math.ray;
+import math.matrix;
 
-import source.colour;
+import scene.model.collision;
 
 class Model(T)
 {
 
-	this( Matrix!T transformation, Material material )
-	{
-		this.material = material;
-		this.transformation = transformation;
-	}
+  this( Matrix!T transformation, Material material )
+  {
+    this.material = material;
+    this.transformation = transformation;
+  }
 
-	abstract bool intersects( Ray!T ray, ref Collision!T collision );
+  abstract bool intersects( Ray!T ray, ref Collision!T collision );
 
 	
-	protected Matrix!T transformation;
-	public Material material;
+  protected Matrix!T transformation;
+  public Material material;
 }
 

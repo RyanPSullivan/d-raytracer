@@ -1,4 +1,4 @@
-﻿module source.colour;
+﻿module colour;
 
 //import core.simd;
 

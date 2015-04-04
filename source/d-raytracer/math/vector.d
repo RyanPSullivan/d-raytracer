@@ -1,4 +1,4 @@
-module source.math.vector;
+module math.vector;
 
 import core.simd;
 import core.math;

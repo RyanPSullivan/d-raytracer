@@ -1,32 +1,50 @@
-﻿module source.scene.rendercontext;
+﻿module scene.rendercontext;
 
-import source.scene.camera;
-import source.scene.model.model;
-import source.math.vector;
-import source.colour;
+import scene.camera;
+import scene.scene;
+import math.vector;
+import colour;
 
-import source.scene.light.point;
-
-import std.conv;
-import std.stdio;
+import scene.light.point;
 
 struct RenderContext(T)
 {
-	this(uint width = 640, uint height = 480)
-	{
-		this.width = width;
-		this.height = height;
-		this.imageAspectRatio = width / cast(float)height;
-		this.backgroundColor = Colour(0.2, 0.3, 0.5, 0);
-	}
+  this(Scene!T scene, uint width = 640, uint height = 480)
+  {
+    this.scene = scene;
+    this.width = width;
+    this.height = height;
+    this.imageAspectRatio = width / cast(float)height;
+    this.backgroundColor = Colour(0.2, 0.3, 0.5, 0);
+  }
 
-	public Camera!T camera;
-	uint width;
-	uint height;
-	float imageAspectRatio;
-	Vector!T[] image;
-	Model!T[] models;
-	Colour backgroundColor;
-	PointLight!T[] pointLights;
+  Ray!T calculateRayForPixel(T)( ulong x, ulong y, Camera camera)
+  {
+    Matrix!float camToWorld = renderContext.camera.transform;
+	
+    auto rayOrigin = camToWorld.multVecMatrix(Vector!float(0,0,0));
+
+    // remap from raster to screen space
+    float xx = (2 * ((x + 0.5) / this.width) - 1)  * camera.angle * this.imageAspectRatio;
+    float yy = (1 - 2 *((y + 0.5) / this.height))  * camera.angle;
+	
+    // create the ray direction, looking down the z-axis
+    // and transform by the camera-to-world matrix
+    auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, -1));
+
+    return Ray!float( rayOrigin, 
+		      Vector!float.normalize(rayDirection), 
+		      renderContext.camera.nearClippingPlane, 
+		      renderContext.camera.farClippingPlane);
+	
+  }
+  
+  Scene!T scene;
+
+  uint width;
+  uint height;
+
+  float imageAspectRatio;
+  Colour backgroundColor;
 }
 

@@ -1,8 +1,8 @@
-﻿module source.scene.model.material;
+﻿module scene.model.material;
 
 import std.random;
 
-public import source.colour;
+import colour;
 
 struct Material
 {
