@@ -6,11 +6,12 @@ import scene.model.model;
 import scene.model.plane;
 import scene.model.sphere;
 import scene.model.material;
-
+import scene.model.collision;
 import scene.light.point;
 
 import math.matrix;
 import math.vector;
+import math.ray;
 
 struct Scene(T)
 {
@@ -55,8 +56,6 @@ struct Scene(T)
 
     auto name = json["name"].str;
     auto ambientLight = parse!(Colour,float)(json["ambient_light"]);
-  
-    Camera!float[] cameras;
 
     foreach( camera; json["cameras"].array() )
       {
@@ -114,8 +113,7 @@ struct Scene(T)
 	  }
       }
 
-    Model!float[] models;
-    foreach( primitive; json["primitives"].array() )
+      foreach( primitive; json["primitives"].array() )
       {
 	Model!float  model;
       
@@ -142,4 +140,107 @@ struct Scene(T)
 	models ~= model;
       }
   }
+Collision!T getClosestCollidingModel( Ray!T ray ){
+
+  auto collision = Collision!T();
+  collision.distance = T.max;
+  foreach(model; models)
+    {
+      auto tempCollision = Collision!T();
+
+      if( model.intersects( ray, tempCollision ) )
+	{
+	  if( tempCollision.distance < collision.distance 
+	      && tempCollision.distance > ray.min
+	      && tempCollision.distance < ray.max)
+	    {
+	      collision = tempCollision;
+	    }
+	}
+    }
+
+  return collision;
+}
+  public Colour trace( Ray!T ray, int depth )
+  {
+    import math.ray;
+    
+    auto collision = getClosestCollidingModel!T( ray, models );
+	
+    //no co	llision occured return a black pixel for now                                                                                                                                                                      
+    if( collision.model is null )
+      {
+	return renderContext.backgroundColor;
+      }
+    else
+      {
+	//return Colour.WHITE;
+	//return Colour((collision.normal.x + 1)/2, (collision.normal.y + 1)/2, (collision.normal.z + 1)/2, 0);
+		
+
+	T lambertIntensity = 0;
+	T specularIntensity = 0;
+	Colour lightColour = Colour.white;
+
+	foreach(light; renderContext.pointLights)
+	  {
+	    auto vectorToLight = light.position - collision.hit;
+	    auto directionToLight = Vector!T.normalize( vectorToLight );
+	    auto directionToCamera = Vector!T.normalize( renderContext.camera.transform.translation - collision.hit );
+
+	    //dont apply this light if its obfuscated
+	    auto shadowRay = Ray!T( collision.hit, directionToLight, 0.01, vectorToLight.magnitude() );
+	    auto shadowCollision = getClosestCollidingModel( shadowRay, models );
+
+	    //the shadow ray didn't reach the light, continue to next light
+	    if( shadowCollision.model !is null )
+	      {
+		continue;
+	      }
+
+	    //diffuse calulation
+	    auto lightDot = Vector!T.dot( directionToLight, collision.normal );
+
+	    if( lightDot < 0 ) lightDot = 0;
+
+	    lambertIntensity += lightDot * light.diffusePower;
+			
+	    //specular calculation
+	    auto camToLight = Vector!T.normalize(directionToLight + directionToCamera);
+	    auto cameraDot = Vector!T.dot(collision.normal, camToLight);
+
+	    if( cameraDot < 0 ) cameraDot = 0;
+
+	    auto intensity = pow( cameraDot, 100 );
+
+	    specularIntensity += intensity * light.specularPower; 
+
+	    lightColour = lightColour + light.colour;
+	  }
+
+	auto shadingColour =(collision.model.material.ambient * lightColour * ((Colour(1,1,1,0) * 0f)) +
+			     (collision.model.material.diffuse * lambertIntensity) +
+			     (collision.model.material.specular* specularIntensity));
+
+		
+	if( depth < 2 && 
+	    collision.model.material.isReflective )
+	  {
+	    auto kr = collision.model.material.reflectivity;
+
+	    auto reflectionRay = Ray!T(collision.hit,
+				       Vector!T.normalize(Vector!T.reflect(ray.direction,collision.normal)),
+				       0.01);
+
+	    auto reflectionColour = trace(reflectionRay, depth+1);
+
+	    shadingColour = (shadingColour * (1.0f-kr)) + (reflectionColour * kr);
+	  }
+
+	return shadingColour;
+      }
+  }
+  
+  Model!float[] models;
+  Camera!T[] cameras;
 }
