@@ -6,11 +6,13 @@ void write( string file, Colour[][] data )
 {
   import std.stdio;
   import std.conv;
+  import std.math;
+  
     //write header
   auto f = File(file, "w");
 
-  f.write("P6\n" ~ to!string(output[0].length) ~ " " ~ to!string(output.length) ~ "\n255\n");
-  foreach( row; output)
+  f.write("P6\n" ~ to!string(data[0].length) ~ " " ~ to!string(data.length) ~ "\n255\n");
+  foreach( row; data)
     {
       foreach( pixel; row )
 	{

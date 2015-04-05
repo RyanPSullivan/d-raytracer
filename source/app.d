@@ -7,7 +7,6 @@ void main()
 {
   auto scene = Scene!float("public/scene1.scene");
 
-
   int multiplier = 2;
 
   auto renderContext = RenderContext!float( scene,
@@ -15,7 +14,7 @@ void main()
 					    108*multiplier );
 
 
-  auto imageBuffer = renderContext.render( 1 );
+  auto imageBuffer = renderContext.render( 0 );
 
   io.ppm.write("output.ppm",  imageBuffer );
 }

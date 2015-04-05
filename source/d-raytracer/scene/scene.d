@@ -99,7 +99,6 @@ struct Scene(T)
 			       refractivity );
       }
 
-    PointLight!(float)[] lights;
     foreach( light; json["lights"].array() )
       {
       
@@ -163,14 +162,16 @@ Collision!T getClosestCollidingModel( Ray!T ray ){
 }
   public Colour trace( Ray!T ray, int depth )
   {
+    import std.math;
     import math.ray;
-    
-    auto collision = getClosestCollidingModel!T( ray, models );
+
+    auto camera = cameras[0];
+    auto collision = getClosestCollidingModel( ray );
 	
-    //no co	llision occured return a black pixel for now                                                                                                                                                                      
+    
     if( collision.model is null )
       {
-	return renderContext.backgroundColor;
+	return Colour.black;
       }
     else
       {
@@ -182,15 +183,15 @@ Collision!T getClosestCollidingModel( Ray!T ray ){
 	T specularIntensity = 0;
 	Colour lightColour = Colour.white;
 
-	foreach(light; renderContext.pointLights)
+	foreach(light; lights)
 	  {
 	    auto vectorToLight = light.position - collision.hit;
 	    auto directionToLight = Vector!T.normalize( vectorToLight );
-	    auto directionToCamera = Vector!T.normalize( renderContext.camera.transform.translation - collision.hit );
+	    auto directionToCamera = Vector!T.normalize( camera.transform.translation - collision.hit );
 
 	    //dont apply this light if its obfuscated
-	    auto shadowRay = Ray!T( collision.hit, directionToLight, 0.01, vectorToLight.magnitude() );
-	    auto shadowCollision = getClosestCollidingModel( shadowRay, models );
+  auto shadowRay = Ray!T( collision.hit, directionToLight, 0.01, vectorToLight.magnitude() );
+	    auto shadowCollision = getClosestCollidingModel( shadowRay );
 
 	    //the shadow ray didn't reach the light, continue to next light
 	    if( shadowCollision.model !is null )
@@ -241,6 +242,7 @@ Collision!T getClosestCollidingModel( Ray!T ray ){
       }
   }
   
+  PointLight!(float)[] lights;  
   Model!float[] models;
   Camera!T[] cameras;
 }

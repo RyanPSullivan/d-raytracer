@@ -91,8 +91,10 @@ struct RenderContext(T)
 public Colour[][] render( int cameraIndex )
 {
   auto camera = scene.cameras[cameraIndex];
+  
   import std.parallelism;
   import std.stdio;
+  import std.conv;
   
   auto outputBuffer = new Colour[][]( height, width );
 
@@ -103,7 +105,7 @@ public Colour[][] render( int cameraIndex )
 	{
 	  pixel = generatePixel!( 33 )( x,y, camera );
 
-	  write("\r" ~to!string(cast(int)(100*count++/cast(float)(imageWidth*imageHeight))));
+	  write("\r" ~to!string(cast(int)(100*count++/cast(float)(width*height))));
 	}
     }
 
