@@ -51,6 +51,8 @@ struct RenderContext(T)
 
     static if( dof == 0 )
       {
+	//import std.conv; import std.stdio;
+	//	writeln( to!string( camera ) );
 	return scene.trace( originalRay, depth );
       }
     else
@@ -103,7 +105,7 @@ public Colour[][] render( int cameraIndex )
     {
       foreach(x, ref pixel; parallel(row))
 	{
-	  pixel = generatePixel!( 33 )( x,y, camera );
+	  pixel = generatePixel!( 0 )( x,y, camera );
 
 	  write("\r" ~to!string(cast(int)(100*count++/cast(float)(width*height))));
 	}

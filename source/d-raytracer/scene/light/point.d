@@ -6,18 +6,12 @@ import colour;
 struct PointLight(T)
 {
   this(Vector!T position, 
-       Colour colour = Colour.white, 
-       T diffusePower = 1, 
-       T specularPower = 1)
-  {
+       Colour intensity  )  {
     this.position = position;
-    this.colour = colour;
-    this.diffusePower = diffusePower;
-    this.specularPower = specularPower;
+    this.intensity = intensity;
   }
 
   Vector!T position;
-  Colour colour;
-  T  diffusePower;
-  T  specularPower;
+  Colour intensity;
+
 }

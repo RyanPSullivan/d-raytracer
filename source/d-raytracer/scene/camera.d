@@ -14,7 +14,7 @@ struct Camera(T)
 	T focalLength = 0,
 	T aperture = 0,
 	T fov = 90,
-	T farClippingPlane = 1000,
+	T farClippingPlane = 100000,
 	T nearClippingPlane = 0.1 )
   {
     this.nearClippingPlane = nearClippingPlane;

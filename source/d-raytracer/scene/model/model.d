@@ -14,6 +14,10 @@ class Model(T)
   {
     this.material = material;
     this.transformation = transformation;
+
+    import std.stdio;
+
+    writeln( this.transformation );
   }
 
   abstract bool intersects( Ray!T ray, ref Collision!T collision );

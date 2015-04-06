@@ -242,8 +242,9 @@ struct Matrix(T)
     mat.up = up;
     mat.forward = Vector!T.normalize(target - position);
     mat.right = Vector!T.cross(mat.up, mat.forward);
-    mat.translation = position;
+    mat.translation = Vector!T(position.x, position.y, position.z, 1 );
 
+   
     return mat;
   }
 
