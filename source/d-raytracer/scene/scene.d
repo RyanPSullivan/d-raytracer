@@ -225,14 +225,12 @@ struct Scene(T)
     auto camera = cameras[0];
     auto collision = getClosestCollidingModel( ray );
 	
-	import std.stdio;    
     if( collision.model is null )
       {
 	return Colour.black;
       }
     else
       {
-	writeln("collision");
 	auto colour = blinnPhong( collision,
 				  camera.transform.translation );
 	

@@ -29,13 +29,14 @@ struct RenderContext(T)
     auto rayOrigin = camToWorld.multVecMatrix(Vector!float(0,0,0));
 
     // remap from raster to screen space
-    float xx = (2 * ((x + 0.5) * camera.aperture / this.width) - 1)  * camera.angle * this.imageAspectRatio;
+    float xx = (2 * ((x + 0.5) / this.width) - 1)  * camera.angle * this.imageAspectRatio;
     
     float yy = (1 - 2 *((y + 0.5) / this.height))  * camera.angle;
+    
 	
     // create the ray direction, looking down the z-axis
     // and transform by the camera-to-world matrix
-    auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, -1));
+    auto rayDirection = camToWorld.multDirMatrix(Vector!float(xx, yy, 1));
 
     return Ray!float( rayOrigin, 
 		      Vector!float.normalize(rayDirection), 
@@ -51,8 +52,7 @@ struct RenderContext(T)
 
     static if( dof == 0 )
       {
-	//import std.conv; import std.stdio;
-	//	writeln( to!string( camera ) );
+
 	return scene.trace( originalRay, depth );
       }
     else

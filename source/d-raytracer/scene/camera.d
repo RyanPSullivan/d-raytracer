@@ -13,7 +13,7 @@ struct Camera(T)
   this( Matrix!T worldTransform = Matrix!T.identity,
 	T focalLength = 0,
 	T aperture = 0,
-	T fov = 90,
+	T fov = 45,
 	T farClippingPlane = 100000,
 	T nearClippingPlane = 0.1 )
   {
@@ -21,7 +21,7 @@ struct Camera(T)
     this.farClippingPlane = farClippingPlane;
     this.fov = fov;
     this.transform = worldTransform;
-    this.angle = atan((fov * 0.5) * 0.0174532925);
+    this.angle = atan((this.fov * 0.5) * 0.0174532925);
     this.focalLength = focalLength;
     this.aperture = aperture;
   }

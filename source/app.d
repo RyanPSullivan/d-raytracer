@@ -7,7 +7,7 @@ void main()
 {
   auto scene = Scene!float("public/scene1.scene");
 
-  int multiplier = 2;
+  int multiplier = 10;
 
   auto renderContext = RenderContext!float( scene,
 					    192*multiplier,
