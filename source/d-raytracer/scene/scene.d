@@ -244,7 +244,7 @@ struct Scene(T)
 
 	    auto reflectionColour = trace(reflectionRay, depth+1);
 
-	    colour = (colour * (Colour.white.opBinary!"-"(kr))) + (reflectionColour * kr);
+	    colour = colour + (reflectionColour * kr);
 	  }
 
 	return colour;

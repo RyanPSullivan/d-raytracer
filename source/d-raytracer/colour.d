@@ -17,7 +17,7 @@ struct Colour
     this.elements = rgba;
   }
 
-  static immutable Colour white = Colour(1,1,1,0);
+  static immutable Colour white = Colour( 1, 1, 1, 0 );
   static immutable Colour black = Colour( 0, 0, 0, 0 );
   static immutable Colour red = Colour( 1, 0, 0, 0 );
   static immutable Colour green = Colour( 0, 1, 0, 0 );
@@ -46,7 +46,6 @@ struct Colour
     mixin("return Colour( r " ~ op ~ " scalar, g " ~ op ~ " scalar, b " ~ op ~ " scalar, a " ~ op ~ " scalar );");
   }
 
-	
   Colour opBinaryRight( string op )( float scalar )
   {
     mixin("return this " ~ op ~ "scalar;");

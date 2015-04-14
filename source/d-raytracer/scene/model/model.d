@@ -14,6 +14,7 @@ class Model(T)
   {
     this.material = material;
     this.transformation = transformation;
+    import std.stdio; import std.conv; writeln(to!string(this.transformation));
   }
 
   abstract bool intersects( Ray!T ray, ref Collision!T collision );

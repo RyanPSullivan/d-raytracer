@@ -210,6 +210,20 @@ struct Matrix(T)
 
   }
 
+  public Matrix opBinary( string op )( T value )
+  {
+    auto result = Matrix();
+
+    for( int i = 0; i < 4; ++i )
+      {
+	for( int j = 0; j < 4; ++j )
+	  {
+	    mixin("result.m[i][j] = this.m[i][j] " ~ op ~ " value;");
+	  }
+      }
+
+    return result;
+  }
   public Matrix opBinary(string op)(Matrix rhs) 
   {
     static if( op == "*")
@@ -229,6 +243,19 @@ struct Matrix(T)
 	  } 
 	} 
 			
+	return result;
+      }
+    else if( op == "+")
+      {
+	auto result = Matrix();
+	for( int i = 0; i < 4; i++ )
+	  {
+	    for( int j = 0; j < 4; j++ )
+	      {
+		result.m[i][j] = this.m[i][j] + rhs.m[i][j];
+	      }
+	  }
+
 	return result;
       }
   }
@@ -277,6 +304,31 @@ struct Matrix(T)
     return createRotationZ(yaw) * createRotationY(pitch) * createRotationX( roll);
   }
 
+  public static Matrix rotationMatrixAligningAWithB( Vector!T a, Vector!T b )
+  {
+    auto v = Vector!T.cross( a, b );
+    auto s = v.magnitudeSquared();
+    auto c = Vector!T.dot( a, b );
+
+    if( s == 0 )
+      {
+	return Matrix.identity;
+      }
+    
+    auto d = ( 1 - c ) / s;
+
+    Matrix createSkewedSymmetricMatrix( Vector!T vector )
+    {
+      return Matrix( 0, -vector.z, vector.y, 0,
+		     vector.z, 0, -vector.x, 0,
+		     -vector.y, vector.x, 0, 0,
+		     0, 0, 0, 0 );
+    }
+
+    auto skewedCrossMatrix = createSkewedSymmetricMatrix( v );
+
+    return Matrix.identity + skewedCrossMatrix + skewedCrossMatrix * skewedCrossMatrix * d;
+  }
   @property static Matrix identity() nothrow
   {
     return Matrix(1, 0, 0, 0,

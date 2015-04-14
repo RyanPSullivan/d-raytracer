@@ -9,8 +9,8 @@ void main()
 
   int multiplier = 10;
 
-  auto renderContext = RenderContext!float( scene,
-					    192*multiplier,
+   auto renderContext = RenderContext!float( scene,
+  					    192*multiplier,
 					    108*multiplier );
 
 

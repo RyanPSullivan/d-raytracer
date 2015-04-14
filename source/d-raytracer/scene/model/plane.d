@@ -18,10 +18,12 @@ class Plane(T) : Model!T
 
   this( Vector!T normal, Vector!T point, Material material )
     {
-      this( Matrix!T( Vector!T(),
-		      normal,
-		      Vector!T(),
-		      point ),
+
+      auto up = Vector!T.up;
+
+      auto rotation = Matrix!T.rotationMatrixAligningAWithB( up, normal );
+      rotation.translation = Vector!T( point.x, point.y, point.z, 1 );
+      this( rotation,
 	    material );
     }
 

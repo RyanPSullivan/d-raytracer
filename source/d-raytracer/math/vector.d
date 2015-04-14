@@ -97,8 +97,8 @@ public:
 		              lhs.x * rhs.y - lhs.y * rhs.x );
 	}
 
-	@property T x() { return elements[0]; }
-	@property T x( T value ) { return elements[0] = value; }
+  @property T x() { return elements[0]; }
+  @property T x( T value ) { return elements[0] = value; }
 
 	@property T y() { return elements[1]; }
 	@property T y( T value ) { return elements[1] = value; }
