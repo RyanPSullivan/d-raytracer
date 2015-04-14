@@ -247,6 +247,23 @@ struct Scene(T)
 	    colour = colour + (reflectionColour * kr);
 	  }
 
+	if( collision.model.material.isRefractive )
+	  {
+	    import std.math;
+	    auto n = 1.0/collision.model.material.refractivity;
+	    auto c1 = -1 * Vector!float.dot( ray.direction, collision.normal);
+	    auto c2 = sqrt(1 - n*n*(1-c1)*(1-c1));
+	    auto r = ( n * ray.direction ) + ( n * c1 - c2 ) * collision.normal;
+
+	    auto refractionRay = Ray!T( collision.hit,
+					Vector!T.normalize( r ),
+					0.01 );
+
+	    auto refractionColour = trace( refractionRay, depth );
+
+	    colour = colour + refractionColour;
+	  }
+
 	return colour;
       }
   }
