@@ -102,7 +102,7 @@ struct Scene(T)
     foreach( light; json["lights"].array() )
       {
       
-	switch(light["type"].str)
+	final switch(light["type"].str)
 	  {
 	  case "area":
 	    lights ~= PointLight!(float)( parse!(Vector!float,float)( light["position"] ),
@@ -120,7 +120,7 @@ struct Scene(T)
 	auto properties = primitive["properties"];
 	auto material = materials[materialID];
 
-	switch( primitive["type"].str )
+	final switch( primitive["type"].str )
 	  {
 	  case "plane":
 	    model = new Plane!float( parse!(Vector!float,float)(properties["normal"]),
